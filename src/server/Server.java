@@ -34,11 +34,12 @@ public class Server
         // client request 
         while (true)
         {
+            System.out.println("kurwa");
             // Accept the incoming request 
             s = ss.accept();
 
             System.out.println("New client request received : " + s);
-
+            System.out.println("kurwa2");
             // obtain input and output streams 
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
