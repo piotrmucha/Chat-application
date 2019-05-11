@@ -1,6 +1,6 @@
 // Java implementation for multithreaded chat client 
 // Save file as Client.java
- package client;
+package client;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
@@ -11,10 +11,11 @@ public class Client
 
     public static void main(String args[]) throws UnknownHostException, IOException
     {
+        System.out.println("wdf");
         Scanner scn = new Scanner(System.in);
 
         // getting localhost ip 
-        InetAddress ip = InetAddress.getByName("10.130.42.146");
+        InetAddress ip = InetAddress.getByName("10.60.0.217");
 
         // establish the connection 
         Socket s = new Socket(ip, ServerPort);
