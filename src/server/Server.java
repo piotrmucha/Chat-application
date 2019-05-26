@@ -24,11 +24,7 @@ public class Server
         if (instance == null) {
             synchronized (Server.class) {
                 if (instance == null) {
-                    try {
                         instance = new Server();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         }
@@ -37,8 +33,17 @@ public class Server
     }
     public static void main(String args[]){
         Server serwer=Server.getInstance();
+        try {
+            serwer.run();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
-    private Server() throws IOException
+    private Server(){
+        
+    }
+    private void run() throws IOException
     {
         // server is listening on port 1234 
         ServerSocket ss = new ServerSocket(4999, 1, InetAddress.getLocalHost());
