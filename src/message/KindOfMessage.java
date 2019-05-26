@@ -1,4 +1,5 @@
 package message;
 
-public class KindOfMessage {
+public enum KindOfMessage {
+          MESSAGE,TRYTOLOG,READYTOLOG,DISCONECTION;
 }
