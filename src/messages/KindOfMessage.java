@@ -1,0 +1,5 @@
+package messages;
+
+public enum KindOfMessage {
+    STANDARDMESSAGE,TRYTOCONNECT,CONNECTIONPERFORMED,DISCONNECTION;
+}
