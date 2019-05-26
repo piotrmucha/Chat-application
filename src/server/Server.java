@@ -13,14 +13,32 @@ import java.util.Vector;
 // Server class 
 public class Server
 {
-
+    private volatile  static Server instance;
+    
     // Vector to store active clients 
     static Vector<ClientHandler> ar = new Vector<>();
 
     // counter for clients 
     static int i = 0;
+    public static Server getInstance() {
+        if (instance == null) {
+            synchronized (Server.class) {
+                if (instance == null) {
+                    try {
+                        instance = new Server();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
 
-    public static void main(String[] args) throws IOException
+        return instance;
+    }
+    public static void main(String args[]){
+        Server serwer=Server.getInstance();
+    }
+    private Server() throws IOException
     {
         // server is listening on port 1234 
         ServerSocket ss = new ServerSocket(4999, 1, InetAddress.getLocalHost());

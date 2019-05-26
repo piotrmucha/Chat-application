@@ -48,17 +48,14 @@ class ClientHandler implements Runnable
                     this.s.close();
                     break;
                 }
-                System.out.println("kurwa2");
                 // break the string into message and recipient part 
                 StringTokenizer st = new StringTokenizer(received, "#");
                 String MsgToSend = st.nextToken();
                 String recipient = st.nextToken();
-                System.out.println("kurwa1");
                 // search for the recipient in the connected devices list. 
                 // ar is the vector storing client of active users 
                 for (ClientHandler mc : Server.ar)
                 {
-                    System.out.println("kurwakk");
                     // if the recipient is found, write on its 
                     // output stream 
                 //    if (mc.name.equals(recipient) && mc.isloggedin==true)
@@ -68,7 +65,6 @@ class ClientHandler implements Runnable
                     //    break;
                  //   }
                 }
-                System.out.println("kurwis");
             }
             catch (SocketException e) {
                 System.out.println("User disconnect from the server");
@@ -81,7 +77,6 @@ class ClientHandler implements Runnable
                 break;
             }
             catch (IOException e) {
-                System.out.println("kurwa");
                 e.printStackTrace();
             }
 
