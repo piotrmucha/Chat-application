@@ -2,8 +2,8 @@ package server;// Java implementation of  Server side
 // It contains two classes : Server and ClientHandler 
 // Save file as Server.java 
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -15,14 +15,14 @@ class ClientHandler implements Runnable
 {
     Scanner scn = new Scanner(System.in);
     private String name;
-    final DataInputStream dis;
-    final DataOutputStream dos;
+    final ObjectInputStream dis;
+    final ObjectOutputStream dos;
     Socket s;
     boolean isloggedin;
 
     // constructor 
     public ClientHandler(Socket s, String name,
-                         DataInputStream dis, DataOutputStream dos) {
+                         ObjectInputStream dis, ObjectOutputStream dos) {
         this.dis = dis;
         this.dos = dos;
         this.name = name;
@@ -39,7 +39,7 @@ class ClientHandler implements Runnable
             try
             {
                 // receive the string 
-                received = dis.readUTF();
+                received =(String) dis.readUTF();
 
                 System.out.println(received);
 

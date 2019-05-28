@@ -7,8 +7,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
 import java.awt.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -35,8 +35,8 @@ public class LogController  {
 
                     // obtaining input and out streams
 
-                    DataInputStream dis = new DataInputStream(s.getInputStream());
-                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                    ObjectInputStream dis = new ObjectInputStream(s.getInputStream());
+                    ObjectOutputStream dos = new ObjectOutputStream(s.getOutputStream());
                     int b = 0;
                     //    } catch (InterruptedException e) {
                     //       Thread.currentThread().interrupt();

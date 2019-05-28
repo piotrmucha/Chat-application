@@ -2,8 +2,8 @@ package server;// Java implementation of  Server side
 // It contains two classes : Server and ClientHandler 
 // Save file as Server.java 
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -63,8 +63,8 @@ public class Server
             System.out.println("New client request received : " + s);
 
             // obtain input and output streams 
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            ObjectInputStream dis = new ObjectInputStream(s.getInputStream());
+            ObjectOutputStream dos = new ObjectOutputStream(s.getOutputStream());
 
             System.out.println("Creating a new handler for this client...");
 
