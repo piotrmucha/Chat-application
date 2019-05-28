@@ -12,6 +12,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import messages.*;
 
 
 
@@ -35,7 +36,7 @@ public class LogController  {
                 try {
 
                     //  Thread.sleep(1000);
-                    InetAddress ip = InetAddress.getByName("192.168.0.15");
+                    InetAddress ip = InetAddress.getByName("10.60.0.217");
 
                     // establish the connection
 
@@ -62,9 +63,12 @@ public class LogController  {
                     });
 
                 }
+
                 status.getChildren().clear();
                 Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
                 status.getChildren().add(correct);
+                username.setDisable(false);
+                click.setDisable(false);
                 return null;
             }
         };
@@ -80,6 +84,18 @@ public class LogController  {
     @FXML
     void loginClick() {
         String user = username.getText();
-        int k = 0;
+        if (user.equals("")) {
+            return;
+        }
+        if (user.length() < 2 || user.length() > 12) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
+            username.clear();
+            alert.showAndWait();
+            return;
+        }
+
     }
 }
