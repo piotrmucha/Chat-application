@@ -1,4 +1,5 @@
 package client;
+
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -8,21 +9,29 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+
 import messages.*;
 
 
-
-public class LogController  {
-    @FXML private TextField username;
-    @FXML private Button click;
-    @FXML private TextFlow status;
+public class LogController {
+    @FXML
+    private TextField username;
+    @FXML
+    private Button click;
+    @FXML
+    private TextFlow status;
     final static int ServerPort = 4999;
-    public LogController(){}
-    public void initialize () {
+    private ObjectInputStream input;
+    private ObjectOutputStream output;
+
+    public LogController() {
+    }
+
+    public void initialize() {
         // Platform.runLater(()-> {
         Text wait = new Text("Czekam na połączenie..");
         status.getChildren().add(wait);
@@ -35,24 +44,22 @@ public class LogController  {
             public Void call() {
                 try {
 
-                    //  Thread.sleep(1000);
-                    InetAddress ip = InetAddress.getByName("10.60.0.217");
 
-                    // establish the connection
+                    InetAddress ip = InetAddress.getByName("192.168.0.15");
 
                     Socket s = new Socket(ip, ServerPort);
 
-                    // obtaining input and out streams
 
-                    DataInputStream dis = new DataInputStream(s.getInputStream());
-                    DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-                    int b = 0;
+                    output = new ObjectOutputStream(s.getOutputStream());
+                    input = new ObjectInputStream(s.getInputStream());
+
+
                     //    } catch (InterruptedException e) {
                     //       Thread.currentThread().interrupt();
                     // code for stopping current task so thread stops
 
                 } catch (Exception e) {
-                    Platform.runLater(()-> {
+                    Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
                         alert.setHeaderText(null);
@@ -77,10 +84,8 @@ public class LogController  {
         connection.start();
 
 
-
-
-
     }
+
     @FXML
     void loginClick() {
         String user = username.getText();
@@ -96,6 +101,25 @@ public class LogController  {
             alert.showAndWait();
             return;
         }
+        Message loginTry = new Message();
+        KindOfMessage logging = KindOfMessage.TRY_TO_CONNECT;
+        loginTry.setKindOfMessage(logging);
+        loginTry.setUserName(user);
+        try {
+            output.writeObject(loginTry);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Message result = null;
+        try {
+             result = (Message)input.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        int k = 0;
 
     }
 }
