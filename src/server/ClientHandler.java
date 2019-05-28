@@ -2,6 +2,9 @@ package server;// Java implementation of  Server side
 // It contains two classes : Server and ClientHandler 
 // Save file as Server.java 
 
+import messages.KindOfMessage;
+import messages.Message;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
@@ -33,15 +36,40 @@ class ClientHandler implements Runnable
     @Override
     public void run() {
 
-        String received;
+        Message received = null;
         while (true)
         {
             try
             {
-                // receive the string 
-                received =(String) dis.readUTF();
+                // receive the string
+                try {
+                    received = (Message) dis.readObject();
+                }catch(ClassNotFoundException e){
+                    e.printStackTrace();
+                }
+                switch(received.getKindOfMessage()){
+                    case TRY_TO_CONNECT:  {
+                        boolean flag=true;
+                        for (ClientHandler mc : Server.ar)
+                        {
+                            if(received.getUserName().equals(mc.name)){
+                                received.setKindOfMessage(KindOfMessage.DISCONNECTION);
+                                dos.writeObject(received);
+                                flag=false;
+                                break;
+                            }
 
-                System.out.println(received);
+                        }
+                        if(flag==true) {
+                            received.setKindOfMessage(KindOfMessage.CONNECTION);
+                            dos.writeObject(received);
+                        }
+                        break;
+                    }
+
+                }
+
+                //System.out.println(received.getContent());
 
                 if(received.equals("logout")){
                     this.isloggedin=false;
@@ -49,21 +77,15 @@ class ClientHandler implements Runnable
                     break;
                 }
                 // break the string into message and recipient part 
-                StringTokenizer st = new StringTokenizer(received, "#");
+                StringTokenizer st = new StringTokenizer(received.getContent(), "#");
                 String MsgToSend = st.nextToken();
                 String recipient = st.nextToken();
                 // search for the recipient in the connected devices list. 
                 // ar is the vector storing client of active users 
                 for (ClientHandler mc : Server.ar)
                 {
-                    // if the recipient is found, write on its 
-                    // output stream 
-                //    if (mc.name.equals(recipient) && mc.isloggedin==true)
-                //    {
                         System.out.println("sas");
                         mc.dos.writeUTF(this.name+" : "+MsgToSend);
-                    //    break;
-                 //   }
                 }
             }
             catch (SocketException e) {
