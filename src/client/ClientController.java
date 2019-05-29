@@ -11,24 +11,12 @@ import java.net.*;
 import static messages.KindOfMessage.STANDARD_MESSAGE;
 
 public class ClientController {
+
     private ObjectInputStream sInput;        // to read from the socket
     private ObjectOutputStream sOutput;        // to write on the socket
     private Socket socket;
     private String nick;
 
-    public ClientController(Socket socket,String nick){
-        this.socket=socket;
-        this.nick=nick;
-        try {
-            sInput = new ObjectInputStream(socket.getInputStream());
-            sOutput = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        outputArea.setEditable(false);
-        new ListenFromServer().start();
-    }
-    
     @FXML
     private TextArea outputArea;
 
@@ -76,6 +64,19 @@ public class ClientController {
     @FXML
     void emoticon08Fun(ActionEvent event) {
         messagesArea.appendText("🤣");
+    }
+    
+    public ClientController(Socket socket,String nick){
+        this.socket=socket;
+        this.nick=nick;
+        try {
+            sInput = new ObjectInputStream(socket.getInputStream());
+            sOutput = new ObjectOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        outputArea.setEditable(false);
+        new ListenFromServer().start();
     }
 
     @FXML
