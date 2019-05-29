@@ -1,5 +1,10 @@
 package client;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -14,8 +19,8 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import javafx.stage.Stage;
 import messages.*;
-
 
 public class LogController {
     @FXML
@@ -24,6 +29,8 @@ public class LogController {
     private Button click;
     @FXML
     private TextFlow status;
+    @FXML
+    private AnchorPane stage;
     final static int ServerPort = 4999;
     private ObjectInputStream input;
     private ObjectOutputStream output;
@@ -45,7 +52,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.60.2.35");
+                    InetAddress ip = InetAddress.getByName("10.60.0.217");
 
                     Socket s = new Socket(ip, ServerPort);
 
@@ -126,8 +133,24 @@ public class LogController {
                         e.printStackTrace();
                     }
 
-                    int k = 0;
+
                 }
+
+                Platform.runLater(() -> {
+
+                    try {
+                        Stage currentStage = (Stage) stage.getScene().getWindow();
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/client.fxml"));
+                         Parent content = loader.load();
+                        Scene scene = new Scene(content);
+                        currentStage.setScene(scene);
+                        currentStage.show();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                });
+
                 return null;
             }
         };

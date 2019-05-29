@@ -23,8 +23,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-        //  myControllerHandle = new LogController();
-        //loader.setController(myControllerHandle);
+
+
+
         Parent root = loader.load();
         Scene scene = new Scene(root);
         primaryStage.setTitle("Okno logowania");
