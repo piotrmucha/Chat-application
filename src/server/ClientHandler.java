@@ -10,13 +10,11 @@ import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+
 
 // ClientHandler class
 class ClientHandler implements Runnable
 {
-    Scanner scn = new Scanner(System.in);
     private String name;
     final ObjectInputStream dis;
     final ObjectOutputStream dos;
@@ -96,7 +94,7 @@ class ClientHandler implements Runnable
 
                 }
                 System.out.println("kos");
-                System.out.println("jeden: "+this.getName()+" dwa: "+this.name);
+                System.out.println("Poza pętlą: "+this.name);
                 for (ClientHandler mc : Server.ar)
                 {
                     System.out.println("sas");

@@ -3,51 +3,32 @@ package client;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.TextArea;
-//import server.ClientHandler;
-import server.Server;
-
+import messages.Message;
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
+
+import static messages.KindOfMessage.STANDARD_MESSAGE;
 
 public class ClientController {
-    private DataInputStream sInput;        // to read from the socket
-    private DataOutputStream sOutput;        // to write on the socket
+    private ObjectInputStream sInput;        // to read from the socket
+    private ObjectOutputStream sOutput;        // to write on the socket
     private Socket socket;
-    private String nick, message;
-    private int port;
+    private String nick;
 
-    public void initialize(){
-        port = 4999;
-        InetAddress ip = null;
+    public ClientController(Socket socket,String nick){
+        this.socket=socket;
+        this.nick=nick;
         try {
-            ip = InetAddress.getByName("192.168.56.1");    //192.168.56.1
-            Socket s = new Socket(ip, port);
-            sInput = new DataInputStream(s.getInputStream());
-            sOutput = new DataOutputStream(s.getOutputStream());
-//            Vector<ClientHandler> e= Server.getVector();
-//            System.out.println("abcd");
-//            System.out.println(Server.getVector().size());
-//            for(ClientHandler q:e){
-//                System.out.println(q.getName());
-//            }
-//            System.out.println("abcd");
-            nick = "PCPC";
-            message = "Patryk";
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+            sInput = new ObjectInputStream(socket.getInputStream());
+            sOutput = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
         outputArea.setEditable(false);
         new ListenFromServer().start();
-
-        // establish the connection
     }
-
-
+    
     @FXML
     private TextArea outputArea;
 
@@ -99,24 +80,20 @@ public class ClientController {
 
     @FXML
     void sendMessage(ActionEvent event) {
-       String recived= messagesArea.getText();
-       if(!recived.isEmpty()){
-           try {
-               sOutput.writeUTF(recived);
-               messagesArea.setText("");
-           } catch (IOException e) {
-               System.out.println("Problem z wysyłaniem wiadomości");
-               e.printStackTrace();
-           }
-       }
-    }
-//    void sendHyperlink(String s){
-//        messagesArea.append;
-//        return;
-//    }
-    
-    private void display(String msg) {
-        outputArea.appendText(msg + "\n"); // append to the ServerChatArea
+        String received= messagesArea.getText();
+        if(!received.isEmpty()){
+            Message toSent= new Message();
+            toSent.setUserName(nick);
+            toSent.setKindOfMessage(STANDARD_MESSAGE);
+            toSent.setContent(received);
+            try {
+                sOutput.writeObject(received);
+                messagesArea.setText("");
+            } catch (IOException e) {
+                System.out.println("Problem z wysyłaniem wiadomości");
+                e.printStackTrace();
+            }
+        }
     }
 
     class ListenFromServer extends Thread {
@@ -126,12 +103,18 @@ public class ClientController {
             while (true) {
                 try {
                     // read the message sent to this client
-                    String msg = sInput.readUTF();
-                    msg += "\n";
-                    //  controller.OutputArea.appendText(msg);
-                    outputArea.appendText(msg);
-                    //  System.out.println(msg);
-                } catch (SocketException t) {
+                    Message received = (Message) sInput.readObject();
+                    if(received.getKindOfMessage() == STANDARD_MESSAGE) {
+                        String msg = received.getContent();
+                        msg = this.getName() + ": " + msg;
+                        msg += "\n";
+                        outputArea.appendText(msg);
+                    }
+                }catch(ClassNotFoundException e ){
+                    e.printStackTrace();
+
+                }
+                catch (SocketException t) {
                     try {
                         sOutput.close();
                         sInput.close();
