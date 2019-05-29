@@ -16,17 +16,14 @@ public class ClientController {
     private Socket socket;
     private String nick;
 
-    public ClientController(Socket socket,String nick){
-        this.socket=socket;
-        this.nick=nick;
-        try {
-            sInput = new ObjectInputStream(socket.getInputStream());
-            sOutput = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+    public ClientController () {
+        sInput = LogController.input;
+        sOutput = LogController.output;
+        socket = LogController.s;
+        nick = LogController.userN;
+        if ( true == true) {
+            int k = 0;
         }
-        outputArea.setEditable(false);
-        new ListenFromServer().start();
     }
     
     @FXML

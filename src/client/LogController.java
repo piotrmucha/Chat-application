@@ -32,12 +32,12 @@ public class LogController {
     @FXML
     private AnchorPane stage;
     final static int ServerPort = 4999;
-    private ObjectInputStream input;
-    private ObjectOutputStream output;
-
+    static ObjectInputStream input;
+    static ObjectOutputStream output;
+    static Socket s;
+    static String userN;
     public LogController() {
     }
-
     public void initialize() {
         // Platform.runLater(()-> {
         Text wait = new Text("Czekam na połączenie..");
@@ -54,7 +54,7 @@ public class LogController {
 
                     InetAddress ip = InetAddress.getByName("10.60.0.217");
 
-                    Socket s = new Socket(ip, ServerPort);
+                     s = new Socket(ip, ServerPort);
 
 
                     output = new ObjectOutputStream(s.getOutputStream());
@@ -99,6 +99,7 @@ public class LogController {
             @Override
             public Void call() {
                 String user = username.getText();
+                userN = user;
                 if (user.equals("")) {
 
                 } else if (user.length() < 2 || user.length() > 12) {
