@@ -5,6 +5,7 @@ package server;// Java implementation of  Server side
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -45,8 +46,17 @@ public class Server
     }
     private void run() throws IOException
     {
-        // server is listening on port 1234 
-        ServerSocket ss = new ServerSocket(4999, 1, InetAddress.getLocalHost());
+        String ip;
+        try(final DatagramSocket socket = new DatagramSocket()){
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+             ip = socket.getLocalAddress().getHostAddress();
+
+        }
+        System.out.println(ip);
+        // server is listening on port 1234
+        String address = InetAddress.getLocalHost().getHostAddress()   ;
+        System.out.println(address);
+        ServerSocket ss = new ServerSocket(4999, 1, InetAddress.getByName(ip));
         System.out.println("\r\nRunning Server: " +
                 "Host=" + ss.getLocalSocketAddress() +
                 " Port=" + ss.getLocalPort());

@@ -45,7 +45,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("192.168.0.15");
+                    InetAddress ip = InetAddress.getByName("10.60.2.35");
 
                     Socket s = new Socket(ip, ServerPort);
 
@@ -88,38 +88,52 @@ public class LogController {
 
     @FXML
     void loginClick() {
-        String user = username.getText();
-        if (user.equals("")) {
-            return;
-        }
-        if (user.length() < 2 || user.length() > 12) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
-            username.clear();
-            alert.showAndWait();
-            return;
-        }
-        Message loginTry = new Message();
-        KindOfMessage logging = KindOfMessage.TRY_TO_CONNECT;
-        loginTry.setKindOfMessage(logging);
-        loginTry.setUserName(user);
-        try {
-            output.writeObject(loginTry);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Message result = null;
-        try {
-             result = (Message)input.readObject();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() {
+                String user = username.getText();
+                if (user.equals("")) {
 
-        int k = 0;
+                } else if (user.length() < 2 || user.length() > 12) {
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
+                        username.clear();
+                        alert.showAndWait();
+                    });
+                } else {
+                    Message loginTry = new Message();
+                    KindOfMessage logging = KindOfMessage.TRY_TO_CONNECT;
+                    loginTry.setKindOfMessage(logging);
+                    loginTry.setUserName(user);
+                    try {
+                        output.writeObject(loginTry);
+                    } catch (
+                            IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    Message result = null;
+                    try {
+                        result = (Message) input.readObject();
+                    } catch (
+                            IOException e) {
+                        e.printStackTrace();
+                    } catch (
+                            ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    int k = 0;
+                }
+                return null;
+            }
+        };
+        Thread connection = new Thread(task);
+        connection.setDaemon(true);
+        connection.start();
 
     }
 }
