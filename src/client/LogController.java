@@ -36,6 +36,7 @@ public class LogController {
     static ObjectOutputStream output;
     static Socket s;
     static String userN;
+    static int userCounts = 0;
 
     public LogController() {
     }
@@ -54,7 +55,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.130.46.63");
+                    InetAddress ip = InetAddress.getByName("10.130.42.146");
 
                     s = new Socket(ip, ServerPort);
 
@@ -156,6 +157,7 @@ public class LogController {
                     KindOfMessage answer = result.getKindOfMessage();
 
                     if (answer == KindOfMessage.CONNECTION) {
+                        userCounts = result.getUsersCounter();
                         loginAction();
                     } else {
                         Platform.runLater(() -> {
