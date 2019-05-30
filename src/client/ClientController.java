@@ -12,8 +12,7 @@ import messages.Message;
 import java.io.*;
 import java.net.*;
 
-import static messages.KindOfMessage.CONNECTION;
-import static messages.KindOfMessage.STANDARD_MESSAGE;
+import static messages.KindOfMessage.*;
 
 public class ClientController {
     private ObjectInputStream sInput;        // to read from the socket
@@ -96,9 +95,6 @@ public class ClientController {
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
             toSent.setContent(received);
-            if(toSent!=null){
-                int k=0;
-            }
             try {
                 sOutput.writeObject(toSent);
                 messagesArea.setText("");
@@ -114,7 +110,6 @@ public class ClientController {
                 alert.setContentText("Nie udało się wysład wiadomości.\n" +
                         "Przekroczono limit znaków (280)");
                 alert.showAndWait();
-               // Platform.exit();
             });
         }
     }
@@ -134,8 +129,9 @@ public class ClientController {
                         msg = received.getUserName() + ": " + msg;
                         msg += "\n";
                         outputArea.appendText(msg);
-                    }   else if(received.getKindOfMessage() == CONNECTION){
-                        Counter.setText();
+                    }
+                    else if(received.getKindOfMessage() == USER_COUNTER) {
+                        Counter.setText( Integer.toString( received.getUsersCounter() ) );
                     }
 
                 }catch(ClassNotFoundException e ){

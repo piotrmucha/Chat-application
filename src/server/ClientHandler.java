@@ -98,7 +98,13 @@ class ClientHandler implements Runnable
                     }
 
                 }
-
+                System.out.println("kos");
+                System.out.println("Poza pętlą: "+this.name);
+                for (ClientHandler mc : Server.ar)
+                {
+                    System.out.println("sas");
+                    System.out.println("Oto: "+mc.getName());
+                }
             }
             catch (SocketException e) {
                 System.out.println("User disconnect from the server");
