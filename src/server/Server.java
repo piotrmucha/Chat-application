@@ -21,6 +21,7 @@ public class Server
 
     // counter for clients 
     static int i = 0;
+    static int loginClients = 0;
     public static Server getInstance() {
         if (instance == null) {
             synchronized (Server.class) {

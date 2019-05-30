@@ -98,31 +98,7 @@ class ClientHandler implements Runnable
                     }
 
                 }
-                System.out.println("kos");
-                System.out.println("Poza pętlą: "+this.name);
-                for (ClientHandler mc : Server.ar)
-                {
-                    System.out.println("sas");
-                    System.out.println("Oto: "+mc.getName());
-                }
-                //System.out.println(received.getContent());
 
-                /*if(received.equals("logout")){
-                    this.isloggedin=false;
-                    this.s.close();
-                    break;
-                }*/
-                // break the string into message and recipient part 
-        /*        StringTokenizer st = new StringTokenizer(received.getContent(), "#");
-                String MsgToSend = st.nextToken();
-                String recipient = st.nextToken();*/
-                // search for the recipient in the connected devices list. 
-                // ar is the vector storing client of active users 
-                /*for (ClientHandler mc : Server.ar)
-                {
-                        System.out.println("sas");
-                        mc.dos.writeUTF(this.name+" : "+MsgToSend);
-                }*/
             }
             catch (SocketException e) {
                 System.out.println("User disconnect from the server");
