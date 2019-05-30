@@ -49,13 +49,11 @@ class ClientHandler implements Runnable
         {
             try
             {
-                // receive the string
                 try {
                     received = (Message) dis.readObject();
                 }catch(ClassNotFoundException e){
                     e.printStackTrace();
                 }
-                int e=0;
                 switch(received.getKindOfMessage()){
                     case TRY_TO_CONNECT:  {
                         boolean flag=true;
@@ -102,16 +100,16 @@ class ClientHandler implements Runnable
                     case DISCONNECTION: {
                         //service later
                         System.out.println("DISCONNECTION");
+                        for (ClientHandler mc : Server.ar)
+                        {
+                            if (mc!=this) {
+                                mc.dos.writeObject(received);
+                            }
+                        }
+                        Server.ar.remove(this);
                         break;
                     }
 
-                }
-                System.out.println("kos");
-                System.out.println("Poza pętlą: "+this.name);
-                for (ClientHandler mc : Server.ar)
-                {
-                    System.out.println("sas");
-                    System.out.println("Oto: "+mc.getName());
                 }
             }
             catch (SocketException e) {
