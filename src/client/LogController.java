@@ -133,8 +133,7 @@ public class LogController {
                     loginTry.setUserName(user);
                     try {
                         output.writeObject(loginTry);
-                    } catch (
-                            IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
