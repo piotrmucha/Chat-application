@@ -36,8 +36,10 @@ public class LogController {
     static ObjectOutputStream output;
     static Socket s;
     static String userN;
+
     public LogController() {
     }
+
     public void initialize() {
         // Platform.runLater(()-> {
         Text wait = new Text("Czekam na połączenie..");
@@ -92,7 +94,8 @@ public class LogController {
 
 
     }
-    void loginAction () {
+
+    void loginAction() {
         Platform.runLater(() -> {
 
             try {
@@ -108,6 +111,7 @@ public class LogController {
 
         });
     }
+
     @FXML
     void loginClick() {
         Task task = new Task<Void>() {
@@ -123,7 +127,7 @@ public class LogController {
                         alert.setTitle("Error");
                         alert.setHeaderText(null);
                         alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
-                      //  username.clear();
+                        //  username.clear();
                         alert.showAndWait();
                     });
                 } else {
@@ -139,33 +143,32 @@ public class LogController {
                     }
 
                     Message result = null;
-
-                    try {
-                        result = (Message) input.readObject();
-                    } catch (
-                            IOException e) {
-                        e.printStackTrace();
-                    } catch (
-                            ClassNotFoundException e) {
-                        e.printStackTrace();
+                    while (true) {
+                        try {
+                            result = (Message) input.readObject();
+                        } catch (IOException | ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        if (result.getKindOfMessage()!= KindOfMessage.USER_COUNTER) {
+                            break;
+                        }
                     }
                     KindOfMessage answer = result.getKindOfMessage();
+
                     if (answer == KindOfMessage.CONNECTION) {
                         loginAction();
-                    }
-                    else {
+                    } else {
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");
                             alert.setHeaderText(null);
                             alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
-                       //     username.clear();
+                            //     username.clear();
                             alert.showAndWait();
                         });
                     }
 
                 }
-
 
 
                 return null;
