@@ -6,7 +6,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import messages.KindOfMessage;
 import messages.Message;
 import java.io.*;
@@ -19,6 +23,7 @@ public class ClientController {
     private ObjectOutputStream sOutput;        // to write on the socket
     private Socket socket;
     private String nick;
+    private int counter;
 
     @FXML
     private TextArea outputArea;
@@ -31,6 +36,9 @@ public class ClientController {
 
     @FXML
     private Text Counter;
+
+    @FXML
+    private Pane stage;
 
     @FXML
     void emoticon01Fun(ActionEvent event) {
@@ -77,13 +85,20 @@ public class ClientController {
         sOutput = LogController.output;
         socket = LogController.s;
         nick = LogController.userN;
+        counter=LogController.userCounts;
     }
     public void initialize(){
         if(true != false){
             int r=312;
         }
         outputArea.setEditable(false);
+        Counter.setText(Integer.toString(counter));
         new ListenFromServer().start();
+        Stage currentStage = (Stage) stage.getScene().getWindow();
+        currentStage.setOnCloseRequest(e -> {
+            Platform.exit() ;
+
+        });
     }
 
     @FXML
@@ -113,6 +128,7 @@ public class ClientController {
             });
         }
     }
+
 
     class ListenFromServer extends Thread {
 
@@ -165,4 +181,6 @@ public class ClientController {
         }
 
     }
+
+
 }

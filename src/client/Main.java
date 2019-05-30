@@ -1,6 +1,7 @@
 package client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,7 +32,6 @@ public class Main extends Application {
         primaryStage.setTitle("Okno logowania");
         primaryStage.setScene(scene);
         primaryStage.show();
-
 
     }
 
