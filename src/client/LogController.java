@@ -52,7 +52,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.130.46.63");
+                    InetAddress ip = InetAddress.getByName("10.130.42.146");
 
                     s = new Socket(ip, ServerPort);
 
@@ -92,7 +92,22 @@ public class LogController {
 
 
     }
+    void loginAction () {
+        Platform.runLater(() -> {
 
+            try {
+                Stage currentStage = (Stage) stage.getScene().getWindow();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/client.fxml"));
+                Parent content = loader.load();
+                Scene scene = new Scene(content);
+                currentStage.setScene(scene);
+                currentStage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+    }
     @FXML
     void loginClick() {
         Task task = new Task<Void>() {
@@ -108,7 +123,7 @@ public class LogController {
                         alert.setTitle("Error");
                         alert.setHeaderText(null);
                         alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
-                        username.clear();
+                      //  username.clear();
                         alert.showAndWait();
                     });
                 } else {
@@ -133,24 +148,24 @@ public class LogController {
                             ClassNotFoundException e) {
                         e.printStackTrace();
                     }
-
+                    KindOfMessage answer = result.getKindOfMessage();
+                    if (answer == KindOfMessage.CONNECTION) {
+                        loginAction();
+                    }
+                    else {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
+                       //     username.clear();
+                            alert.showAndWait();
+                        });
+                    }
 
                 }
 
-                Platform.runLater(() -> {
 
-                    try {
-                        Stage currentStage = (Stage) stage.getScene().getWindow();
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/client.fxml"));
-                        Parent content = loader.load();
-                        Scene scene = new Scene(content);
-                        currentStage.setScene(scene);
-                        currentStage.show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                });
 
                 return null;
             }
