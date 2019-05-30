@@ -139,6 +139,7 @@ public class LogController {
                     }
 
                     Message result = null;
+
                     try {
                         result = (Message) input.readObject();
                     } catch (

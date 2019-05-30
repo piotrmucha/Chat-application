@@ -6,6 +6,15 @@ public class Message implements Serializable {
     private String userName;
       private String content;
       private KindOfMessage kindOfMessage;
+      private int usersCounter;
+
+    public int getUsersCounter() {
+        return usersCounter;
+    }
+
+    public void setUsersCounter(int usersCounter) {
+        this.usersCounter = usersCounter;
+    }
 
     public String getUserName() {
         return userName;
