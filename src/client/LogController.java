@@ -4,7 +4,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -55,7 +54,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.130.42.146");
+                    InetAddress ip = InetAddress.getByName("10.130.46.63");
 
                     s = new Socket(ip, ServerPort);
 
@@ -138,8 +137,7 @@ public class LogController {
                     loginTry.setUserName(user);
                     try {
                         output.writeObject(loginTry);
-                    } catch (
-                            IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
