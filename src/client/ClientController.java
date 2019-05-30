@@ -15,6 +15,7 @@ import messages.KindOfMessage;
 import messages.Message;
 import java.io.*;
 import java.net.*;
+import java.util.Map;
 
 import static messages.KindOfMessage.*;
 
@@ -24,6 +25,7 @@ public class ClientController {
     private Socket socket;
     private String nick;
     private int counter;
+    private Stage thisStage;
 
     @FXML
     private TextArea outputArea;
@@ -86,18 +88,22 @@ public class ClientController {
         socket = LogController.s;
         nick = LogController.userN;
         counter=LogController.userCounts;
+        thisStage=Main.primStage;
     }
     public void initialize(){
-        if(true != false){
-            int r=312;
-        }
         outputArea.setEditable(false);
         Counter.setText(Integer.toString(counter));
         new ListenFromServer().start();
-        Stage currentStage = (Stage) stage.getScene().getWindow();
-        currentStage.setOnCloseRequest(e -> {
-            Platform.exit() ;
-
+        thisStage.setOnCloseRequest(e ->{
+            Message exitMessage = new Message();
+            exitMessage.setKindOfMessage(DISCONNECTION);
+            try {
+                sOutput.writeObject(exitMessage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            Platform.exit();
+            System.exit(0);
         });
     }
 
@@ -145,8 +151,10 @@ public class ClientController {
                         msg = received.getUserName() + ": " + msg;
                         msg += "\n";
                         outputArea.appendText(msg);
-                    }
+                    }                                                              
                     else if(received.getKindOfMessage() == USER_COUNTER) {
+                        Counter.setText( Integer.toString( received.getUsersCounter() ) );
+                    } else if(received.getKindOfMessage() == DISCONNECTION){
                         Counter.setText( Integer.toString( received.getUsersCounter() ) );
                     }
 
@@ -181,6 +189,4 @@ public class ClientController {
         }
 
     }
-
-
 }

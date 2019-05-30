@@ -20,19 +20,19 @@ public class Main extends Application {
     static AnchorPane rootPane;
     static Scene scene;
     final static int ServerPort = 4999;
+    static Stage primStage;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
 
 
-
+        primStage=primaryStage;
         Parent root = loader.load();
         Scene scene = new Scene(root);
-        primaryStage.setTitle("Okno logowania");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
+        primStage.setTitle("Okno logowania");
+        primStage.setScene(scene);
+        primStage.show();
     }
 
 
