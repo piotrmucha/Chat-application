@@ -72,9 +72,17 @@ class ClientHandler implements Runnable
                         }
                         if(flag==true) {
                             received.setKindOfMessage(KindOfMessage.CONNECTION);
+                            Server.loginClients++;
+                            received.setUsersCounter(Server.loginClients);
                             this.setName(received.getUserName());
                             dos.writeObject(received);
-                            int k=0;
+                            received.setKindOfMessage(KindOfMessage.USER_COUNTER);
+                            for (ClientHandler mc : Server.ar)
+                            {
+                                if (mc!=this) {
+                                    mc.dos.writeObject(received);
+                                }
+                            }
                         }
                         break;
                     }
