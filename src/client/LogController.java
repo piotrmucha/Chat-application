@@ -31,7 +31,7 @@ public class LogController {
     private TextFlow status;
     @FXML
     private AnchorPane stage;
-    final static int ServerPort = 4999;
+    final static int ServerPort = 4998;
     static ObjectInputStream input;
     static ObjectOutputStream output;
     static Socket s;
@@ -52,9 +52,9 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.60.0.217");
+                    InetAddress ip = InetAddress.getByName("10.130.46.63");
 
-                     s = new Socket(ip, ServerPort);
+                    s = new Socket(ip, ServerPort);
 
 
                     output = new ObjectOutputStream(s.getOutputStream());
@@ -142,7 +142,7 @@ public class LogController {
                     try {
                         Stage currentStage = (Stage) stage.getScene().getWindow();
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/client.fxml"));
-                         Parent content = loader.load();
+                        Parent content = loader.load();
                         Scene scene = new Scene(content);
                         currentStage.setScene(scene);
                         currentStage.show();

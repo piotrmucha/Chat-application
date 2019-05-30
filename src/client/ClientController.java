@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import messages.KindOfMessage;
 import messages.Message;
 import java.io.*;
 import java.net.*;
@@ -16,16 +17,6 @@ public class ClientController {
     private Socket socket;
     private String nick;
 
-    public ClientController () {
-        sInput = LogController.input;
-        sOutput = LogController.output;
-        socket = LogController.s;
-        nick = LogController.userN;
-        if ( true == true) {
-            int k = 0;
-        }
-    }
-    
     @FXML
     private TextArea outputArea;
 
@@ -75,6 +66,20 @@ public class ClientController {
         messagesArea.appendText("🤣");
     }
 
+    public ClientController () {
+        sInput = LogController.input;
+        sOutput = LogController.output;
+        socket = LogController.s;
+        nick = LogController.userN;
+    }
+    public void initialize(){
+        if(true != false){
+            int r=312;
+        }
+        outputArea.setEditable(false);
+        new ListenFromServer().start();
+    }
+
     @FXML
     void sendMessage(ActionEvent event) {
         String received= messagesArea.getText();
@@ -83,8 +88,11 @@ public class ClientController {
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
             toSent.setContent(received);
+            if(toSent!=null){
+                int k=0;
+            }
             try {
-                sOutput.writeObject(received);
+                sOutput.writeObject(toSent);
                 messagesArea.setText("");
             } catch (IOException e) {
                 System.out.println("Problem z wysyłaniem wiadomości");
@@ -97,19 +105,21 @@ public class ClientController {
 
         public void run() {
 
+            Message received = null;
             while (true) {
                 try {
                     // read the message sent to this client
-                    Message received = (Message) sInput.readObject();
+                    received = (Message) sInput.readObject();
+
                     if(received.getKindOfMessage() == STANDARD_MESSAGE) {
                         String msg = received.getContent();
-                        msg = this.getName() + ": " + msg;
+                        msg = received.getUserName() + ": " + msg;
                         msg += "\n";
                         outputArea.appendText(msg);
                     }
+
                 }catch(ClassNotFoundException e ){
                     e.printStackTrace();
-
                 }
                 catch (SocketException t) {
                     try {
@@ -132,7 +142,6 @@ public class ClientController {
                     outputArea.appendText("Zbyt  długi czas oczekiwania na połączenie z siecią internetową \n");
                     break;
                 } catch (IOException e) {
-
                     e.printStackTrace();
 
                 }

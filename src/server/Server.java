@@ -56,7 +56,7 @@ public class Server
         // server is listening on port 1234
         String address = InetAddress.getLocalHost().getHostAddress()   ;
         System.out.println(address);
-        ServerSocket ss = new ServerSocket(4999, 1, InetAddress.getByName(ip));
+        ServerSocket ss = new ServerSocket(4998, 1, InetAddress.getByName(ip));
         System.out.println("\r\nRunning Server: " +
                 "Host=" + ss.getLocalSocketAddress() +
                 " Port=" + ss.getLocalPort());

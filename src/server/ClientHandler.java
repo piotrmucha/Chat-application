@@ -10,6 +10,10 @@ import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 // ClientHandler class
@@ -51,6 +55,7 @@ class ClientHandler implements Runnable
                 }catch(ClassNotFoundException e){
                     e.printStackTrace();
                 }
+                int e=0;
                 switch(received.getKindOfMessage()){
                     case TRY_TO_CONNECT:  {
                         boolean flag=true;
