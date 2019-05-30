@@ -1,7 +1,9 @@
 package client;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import messages.KindOfMessage;
@@ -83,7 +85,8 @@ public class ClientController {
     @FXML
     void sendMessage(ActionEvent event) {
         String received= messagesArea.getText();
-        if(!received.isEmpty()){
+        int len=received.length();
+        if(!received.isEmpty() && len<280){
             Message toSent= new Message();
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
@@ -98,6 +101,16 @@ public class ClientController {
                 System.out.println("Problem z wysyłaniem wiadomości");
                 e.printStackTrace();
             }
+        } else if(len>=280){
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Nie udało się wysład wiadomości.\n" +
+                        "Przekroczono limit znaków (280)");
+                alert.showAndWait();
+               // Platform.exit();
+            });
         }
     }
 
