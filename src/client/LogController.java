@@ -54,7 +54,7 @@ public class LogController {
                 try {
 
 
-                    InetAddress ip = InetAddress.getByName("10.130.46.63");
+                    InetAddress ip = InetAddress.getByName("10.130.42.146");
 
                     s = new Socket(ip, ServerPort);
 

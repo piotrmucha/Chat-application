@@ -18,7 +18,7 @@ import java.net.*;
 
 import static messages.KindOfMessage.*;
 
-public class ClientController {
+public class ClientController  {
     private ObjectInputStream sInput;        // to read from the socket
     private ObjectOutputStream sOutput;        // to write on the socket
     private Socket socket;
@@ -94,11 +94,7 @@ public class ClientController {
         outputArea.setEditable(false);
         Counter.setText(Integer.toString(counter));
         new ListenFromServer().start();
-        Stage currentStage = (Stage) stage.getScene().getWindow();
-        currentStage.setOnCloseRequest(e -> {
-            Platform.exit() ;
 
-        });
     }
 
     @FXML

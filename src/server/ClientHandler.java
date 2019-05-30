@@ -23,7 +23,7 @@ class ClientHandler implements Runnable
     final ObjectInputStream dis;
     final ObjectOutputStream dos;
     Socket s;
-
+    Boolean logged = true;
     public void setName(String name) {
         this.name = name;
     }
@@ -100,6 +100,8 @@ class ClientHandler implements Runnable
                     case DISCONNECTION: {
                         //service later
                         System.out.println("DISCONNECTION");
+                        Server.loginClients--;
+                        received.setUsersCounter(Server.loginClients);
                         for (ClientHandler mc : Server.ar)
                         {
                             if (mc!=this) {
@@ -107,9 +109,13 @@ class ClientHandler implements Runnable
                             }
                         }
                         Server.ar.remove(this);
+                        logged = false;
                         break;
                     }
 
+                }
+                if (logged == false) {
+                    break;
                 }
             }
             catch (SocketException e) {
@@ -124,7 +130,6 @@ class ClientHandler implements Runnable
             catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
         try
         {

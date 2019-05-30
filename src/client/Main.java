@@ -32,6 +32,7 @@ public class Main extends Application {
         primaryStage.setTitle("Okno logowania");
         primaryStage.setScene(scene);
         primaryStage.show();
+        Platform.setImplicitExit(true);
 
     }
 
