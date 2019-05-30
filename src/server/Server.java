@@ -18,7 +18,6 @@ public class Server
     
     // Vector to store active clients 
     static Vector<ClientHandler> ar = new Vector<>();
-
     // counter for clients 
     static int i = 0;
     public static Server getInstance() {

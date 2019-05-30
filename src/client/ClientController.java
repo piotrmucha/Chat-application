@@ -6,11 +6,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.text.Text;
 import messages.KindOfMessage;
 import messages.Message;
 import java.io.*;
 import java.net.*;
 
+import static messages.KindOfMessage.CONNECTION;
 import static messages.KindOfMessage.STANDARD_MESSAGE;
 
 public class ClientController {
@@ -27,6 +29,9 @@ public class ClientController {
 
     @FXML
     private Button sendButton;
+
+    @FXML
+    private Text Counter;
 
     @FXML
     void emoticon01Fun(ActionEvent event) {
@@ -129,6 +134,8 @@ public class ClientController {
                         msg = received.getUserName() + ": " + msg;
                         msg += "\n";
                         outputArea.appendText(msg);
+                    }   else if(received.getKindOfMessage() == CONNECTION){
+                        Counter.setText();
                     }
 
                 }catch(ClassNotFoundException e ){

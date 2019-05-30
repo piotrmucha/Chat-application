@@ -112,12 +112,12 @@ class ClientHandler implements Runnable
                     this.s.close();
                     break;
                 }*/
-                // break the string into message and recipient part 
+                // break the string into message and recipient part
         /*        StringTokenizer st = new StringTokenizer(received.getContent(), "#");
                 String MsgToSend = st.nextToken();
                 String recipient = st.nextToken();*/
-                // search for the recipient in the connected devices list. 
-                // ar is the vector storing client of active users 
+                // search for the recipient in the connected devices list.
+                // ar is the vector storing client of active users
                 /*for (ClientHandler mc : Server.ar)
                 {
                         System.out.println("sas");
