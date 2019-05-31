@@ -9,11 +9,14 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class Main extends Application {
     static LogController myControllerHandle;
@@ -40,5 +43,14 @@ public class Main extends Application {
         launch(args);
 
 
+    }
+    public static void openWeb(String url)  {
+        try {
+            Desktop.getDesktop().browse(new URL("https://google.com").toURI());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 }

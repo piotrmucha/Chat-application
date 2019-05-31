@@ -1,5 +1,6 @@
 package client;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,10 +14,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import messages.KindOfMessage;
 import messages.Message;
+
+import java.awt.*;
 import java.io.*;
 import java.net.*;
 import java.util.Map;
-
+import javafx.application.HostServices.*;
 import static messages.KindOfMessage.*;
 
 public class ClientController {
@@ -110,6 +113,13 @@ public class ClientController {
     @FXML
     void sendMessage(ActionEvent event) {
         String received= messagesArea.getText();
+        try {
+            Desktop.getDesktop().browse(new URL(received).toURI());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
         int len=received.length();
         if(!received.isEmpty() && len<280){
             Message toSent= new Message();
