@@ -1,25 +1,17 @@
 package client;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import messages.KindOfMessage;
 import messages.Message;
-
 import java.awt.*;
 import java.io.*;
 import java.net.*;
-import java.util.Map;
-import javafx.application.HostServices.*;
+
 import static messages.KindOfMessage.*;
 
 public class ClientController {
@@ -37,13 +29,32 @@ public class ClientController {
     private TextArea messagesArea;
 
     @FXML
-    private Button sendButton;
-
-    @FXML
     private Text Counter;
 
-    @FXML
-    private Pane stage;
+    public ClientController () {
+        sInput = LogController.input;
+        sOutput = LogController.output;
+        socket = LogController.s;
+        nick = LogController.userN;
+        counter=LogController.userCounts;
+        thisStage=Main.primStage;
+    }
+    public void initialize(){
+        outputArea.setEditable(false);
+        Counter.setText(Integer.toString(counter));
+        new ListenFromServer().start();
+        thisStage.setOnCloseRequest(e ->{
+            Message exitMessage = new Message();
+            exitMessage.setKindOfMessage(DISCONNECTION);
+            try {
+                sOutput.writeObject(exitMessage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            Platform.exit();
+            System.exit(0);
+        });
+    }
 
     @FXML
     void emoticon01Fun(ActionEvent event) {
@@ -83,31 +94,6 @@ public class ClientController {
     @FXML
     void emoticon08Fun(ActionEvent event) {
         messagesArea.appendText("🤣");
-    }
-
-    public ClientController () {
-        sInput = LogController.input;
-        sOutput = LogController.output;
-        socket = LogController.s;
-        nick = LogController.userN;
-        counter=LogController.userCounts;
-        thisStage=Main.primStage;
-    }
-    public void initialize(){
-        outputArea.setEditable(false);
-        Counter.setText(Integer.toString(counter));
-        new ListenFromServer().start();
-        thisStage.setOnCloseRequest(e ->{
-            Message exitMessage = new Message();
-            exitMessage.setKindOfMessage(DISCONNECTION);
-            try {
-                sOutput.writeObject(exitMessage);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            Platform.exit();
-            System.exit(0);
-        });
     }
 
     @FXML

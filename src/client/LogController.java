@@ -13,7 +13,6 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -22,6 +21,13 @@ import javafx.stage.Stage;
 import messages.*;
 
 public class LogController {
+
+    final static int ServerPort = 4998;
+    static ObjectInputStream input;
+    static ObjectOutputStream output;
+    static Socket s;
+    static String userN;
+    static int userCounts = 0;
     @FXML
     private TextField username;
     @FXML
@@ -30,12 +36,6 @@ public class LogController {
     private TextFlow status;
     @FXML
     private AnchorPane stage;
-    final static int ServerPort = 4998;
-    static ObjectInputStream input;
-    static ObjectOutputStream output;
-    static Socket s;
-    static String userN;
-    static int userCounts = 0;
 
     public LogController() {
     }
@@ -52,21 +52,10 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-
-
                     InetAddress ip = InetAddress.getByName("10.60.0.217");
-
                     s = new Socket(ip, ServerPort);
-
-
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
-
-
-                    //    } catch (InterruptedException e) {
-                    //       Thread.currentThread().interrupt();
-                    // code for stopping current task so thread stops
-
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -77,9 +66,7 @@ public class LogController {
                         Platform.exit();
                         System.exit(0);
                     });
-
                 }
-
                 status.getChildren().clear();
                 Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
                 status.getChildren().add(correct);
@@ -91,8 +78,6 @@ public class LogController {
         Thread connection = new Thread(task);
         connection.setDaemon(true);
         connection.start();
-
-
     }
 
     void loginAction() {
@@ -119,9 +104,8 @@ public class LogController {
             public Void call() {
                 String user = username.getText();
                 userN = user;
-                if (user.equals("")) {
-
-                } else if (user.length() < 2 || user.length() > 12) {
+                if (user.equals("")) ;
+                else if (user.length() < 2 || user.length() > 12) {
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
@@ -153,7 +137,6 @@ public class LogController {
                         }
                     }
                     KindOfMessage answer = result.getKindOfMessage();
-
                     if (answer == KindOfMessage.CONNECTION) {
                         userCounts = result.getUsersCounter();
                         loginAction();
@@ -163,20 +146,15 @@ public class LogController {
                             alert.setTitle("Error");
                             alert.setHeaderText(null);
                             alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
-                            //     username.clear();
                             alert.showAndWait();
                         });
                     }
-
                 }
-
-
                 return null;
             }
         };
         Thread connection = new Thread(task);
         connection.setDaemon(true);
         connection.start();
-
     }
 }
