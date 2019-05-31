@@ -100,7 +100,7 @@ public class LogController {
 
             try {
                 Stage currentStage = (Stage) stage.getScene().getWindow();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/client.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/client.fxml"));
                 Parent content = loader.load();
                 Scene scene = new Scene(content);
                 currentStage.setScene(scene);
