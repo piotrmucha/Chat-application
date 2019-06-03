@@ -11,6 +11,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javafx.scene.image.Image;
 
 public class Main extends Application {
     static LogController myControllerHandle;
@@ -28,6 +29,7 @@ public class Main extends Application {
         Parent root = loader.load();
         Scene scene = new Scene(root);
         primStage.setTitle("Okno logowania");
+        primStage.getIcons().add(new Image("resources/icon.png"));
         primStage.setScene(scene);
         primStage.show();
     }

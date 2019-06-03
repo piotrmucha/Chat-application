@@ -1,24 +1,28 @@
 package client;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import javafx.scene.control.TextField;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import java.io.*;
+import javafx.stage.Stage;
+import messages.KindOfMessage;
+import messages.Message;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-
-import javafx.stage.Stage;
-import messages.*;
 
 public class LogController {
 
@@ -28,6 +32,7 @@ public class LogController {
     static Socket s;
     static String userN;
     static int userCounts = 0;
+
     @FXML
     private TextField username;
     @FXML
@@ -52,7 +57,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("10.60.0.217");
+                    InetAddress ip = InetAddress.getByName("192.168.0.15");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
@@ -89,6 +94,8 @@ public class LogController {
                 Parent content = loader.load();
                 Scene scene = new Scene(content);
                 currentStage.setScene(scene);
+                currentStage.setTitle("Okno czatu");
+                currentStage.getIcons().add(new Image("resources/icon.png"));
                 currentStage.show();
             } catch (IOException e) {
                 e.printStackTrace();

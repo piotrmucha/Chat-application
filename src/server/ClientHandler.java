@@ -1,22 +1,12 @@
-package server;// Java implementation of  Server side
-// It contains two classes : Server and ClientHandler 
-// Save file as Server.java 
+package server;
 
 import messages.KindOfMessage;
 import messages.Message;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-// ClientHandler class
 class ClientHandler implements Runnable
 {
     private String name;
@@ -33,14 +23,11 @@ class ClientHandler implements Runnable
     }
 
     // constructor
-    public ClientHandler(Socket s, String name,
-                         ObjectInputStream dis, ObjectOutputStream dos) {
+    public ClientHandler(Socket s, ObjectInputStream dis, ObjectOutputStream dos) {
         this.dis = dis;
         this.dos = dos;
-        this.name = null;
         this.s = s;
     }
-
     @Override
     public void run() {
 
@@ -133,7 +120,6 @@ class ClientHandler implements Runnable
         }
         try
         {
-            // closing resources 
             this.dis.close();
             this.dos.close();
 
