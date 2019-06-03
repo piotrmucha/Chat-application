@@ -38,7 +38,7 @@ public class Main extends Application {
 
 
     }
-    public static void openWeb(String url)  {
+/*    public static void openWeb(String url)  {
         try {
             Desktop.getDesktop().browse(new URL("https://google.com").toURI());
         } catch (IOException e) {
@@ -46,5 +46,5 @@ public class Main extends Application {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }

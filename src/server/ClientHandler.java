@@ -4,16 +4,11 @@ package server;// Java implementation of  Server side
 
 import messages.KindOfMessage;
 import messages.Message;
-
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 // ClientHandler class
@@ -24,21 +19,21 @@ class ClientHandler implements Runnable
     final ObjectOutputStream dos;
     Socket s;
     Boolean logged = true;
+    // constructor
+    public ClientHandler(Socket s,
+                         ObjectInputStream dis, ObjectOutputStream dos) {
+        this.dis = dis;
+        this.dos = dos;
+        this.name = null;
+        this.s = s;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
-    }
-
-    // constructor
-    public ClientHandler(Socket s, String name,
-                         ObjectInputStream dis, ObjectOutputStream dos) {
-        this.dis = dis;
-        this.dos = dos;
-        this.name = null;
-        this.s = s;
     }
 
     @Override
@@ -51,10 +46,10 @@ class ClientHandler implements Runnable
             {
                 try {
                     received = (Message) dis.readObject();
-                }catch(ClassNotFoundException e){
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                switch(received.getKindOfMessage()){
+                switch( received.getKindOfMessage() ){
                     case TRY_TO_CONNECT:  {
                         boolean flag=true;
                         System.out.println("TRY_TO_CONNECT");
@@ -92,8 +87,10 @@ class ClientHandler implements Runnable
                     case STANDARD_MESSAGE:  {
                         for (ClientHandler mc : Server.ar)
                         {
-                            System.out.println("STANDARD_MESSAGE");
-                            mc.dos.writeObject(received);
+                            if(mc != this) {
+                                System.out.println("STANDARD_MESSAGE");
+                                mc.dos.writeObject(received);
+                            }
                         }
                         break;
                     }
@@ -119,7 +116,7 @@ class ClientHandler implements Runnable
                 }
             }
             catch (SocketException e) {
-                System.out.println("User disconnect from the server");
+                    System.out.println("SocketException");
                 try {
                     this.s.close();
                 } catch (IOException ex) {
