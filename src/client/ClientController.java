@@ -7,10 +7,13 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import messages.Message;
+import javafx.scene.text.Font;
 
 
 import java.awt.*;
@@ -52,7 +55,14 @@ public class ClientController {
     public void initialize(){
         scroll.vvalueProperty().bind(outputArea.heightProperty());
         Counter.setText(Integer.toString(counter));
-
+        messagesArea.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.ENTER)  {
+                    sendMessage(new ActionEvent());
+                }
+            }
+        });
 
         Thread  r = new ListenFromServer();
         r.setDaemon(true);
