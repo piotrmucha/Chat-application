@@ -7,6 +7,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -136,8 +139,9 @@ public class ClientController {
                 if(isValidURL(received)) {
                     final String correct = received;
                     Hyperlink link = new Hyperlink(received);
-                    final String userPart = this.nick.toUpperCase()+": " ;
+                    final String userPart = this.nick;
                     Text wait = new Text(userPart);
+                    wait.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
                     link.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent e) {
@@ -154,18 +158,18 @@ public class ClientController {
                         outputArea.getChildren().add(wait);
                         outputArea.getChildren().add(link);
                         outputArea.getChildren().add(new Text(System.lineSeparator()));
-                        playMusic();
                     });
                 }
                 else {
-
-                    String show = this.nick.toUpperCase()+": " + received ;
-                    show += "\n";
-                    Text wait = new Text(show);
+                    Text nickArea = new Text(this.nick+": ");
+                    nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+                    Text message = new Text(received);
                     Platform.runLater(() -> {
-                        outputArea.getChildren().add(wait);
-
+                        outputArea.getChildren().add(nickArea);
+                        outputArea.getChildren().add(message);
+                        outputArea.getChildren().add(new Text(System.lineSeparator()));
                     });
+
                 }
             try {
                 sOutput.writeObject(toSent);
@@ -254,8 +258,8 @@ public class ClientController {
                         if(isValidURL(msg)) {
                             final String correct = msg;
                             Hyperlink link = new Hyperlink(msg);
-                            final String userPart = received.getUserName().toUpperCase() + ": ";
-                            Text wait = new Text(userPart);
+                            Text nickArea = new Text(received.getUserName()+": ");
+                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
                             link.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent e) {
@@ -269,18 +273,20 @@ public class ClientController {
                                 }
                             });
                             Platform.runLater(() -> {
-                                outputArea.getChildren().add(wait);
+                                outputArea.getChildren().add(nickArea);
                                 outputArea.getChildren().add(link);
                                 outputArea.getChildren().add(new Text(System.lineSeparator()));
                                 playMusic();
                             });
                         }
                         else {
-                            msg = received.getUserName().toUpperCase() + ": " + msg;
-                            msg += "\n";
-                            Text wait = new Text(msg);
+                            Text nickArea = new Text(received.getUserName()+": ");
+                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+                            Text mesage = new Text(decrytp(received.getContent()));
                             Platform.runLater(() -> {
-                                outputArea.getChildren().add(wait);
+                                outputArea.getChildren().add(nickArea);
+                                outputArea.getChildren().add(mesage);
+                                outputArea.getChildren().add(new Text(System.lineSeparator()));
                                 playMusic();
                             });
                         }
