@@ -53,7 +53,6 @@ public class ClientController {
         scroll.vvalueProperty().bind(outputArea.heightProperty());
         Counter.setText(Integer.toString(counter));
 
-        new ListenFromServer().start();
 
         Thread  r = new ListenFromServer();
         r.setDaemon(true);
@@ -133,9 +132,41 @@ public class ClientController {
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
             toSent.setContent(encrypted);
-            String text=this.nick+": " +received+"\n";
-            Text t = new Text(text);
-            outputArea.getChildren().add(t);
+
+                if(isValidURL(received)) {
+                    final String correct = received;
+                    Hyperlink link = new Hyperlink(received);
+                    final String userPart = this.nick.toUpperCase()+": " ;
+                    Text wait = new Text(userPart);
+                    link.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent e) {
+                            try {
+                                Desktop.getDesktop().browse(new URL(correct).toURI());
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            } catch (URISyntaxException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
+                    Platform.runLater(() -> {
+                        outputArea.getChildren().add(wait);
+                        outputArea.getChildren().add(link);
+                        outputArea.getChildren().add(new Text(System.lineSeparator()));
+                        playMusic();
+                    });
+                }
+                else {
+
+                    String show = this.nick.toUpperCase()+": " + received ;
+                    show += "\n";
+                    Text wait = new Text(show);
+                    Platform.runLater(() -> {
+                        outputArea.getChildren().add(wait);
+
+                    });
+                }
             try {
                 sOutput.writeObject(toSent);
                 messagesArea.setText("");
@@ -177,7 +208,7 @@ public class ClientController {
           int distance=7;
           for(int i=0;i<sb.length();i++){
               int c =(int) sb.charAt(i);
-              if(c>31 && c<122){
+              if(c>31 && c<123){
                if(c+distance>122){
                    c = 31 + (distance -(122-c));
                }else{
