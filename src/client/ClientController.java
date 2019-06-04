@@ -3,12 +3,18 @@ package client;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -59,6 +65,7 @@ public class ClientController {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (keyEvent.getCode() == KeyCode.ENTER)  {
+
                     sendMessage(new ActionEvent());
                 }
             }
@@ -134,6 +141,7 @@ public class ClientController {
     }
     @FXML
     void sendMessage(ActionEvent event) {
+
         String received= messagesArea.getText();
         int len=received.length();
         if(!received.isEmpty() && len<280){
@@ -146,8 +154,9 @@ public class ClientController {
                 if(isValidURL(received)) {
                     final String correct = received;
                     Hyperlink link = new Hyperlink(received);
-                    final String userPart = this.nick.toUpperCase()+": " ;
+                    final String userPart = this.nick;
                     Text wait = new Text(userPart);
+                    wait.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
                     link.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent e) {
@@ -163,19 +172,23 @@ public class ClientController {
                     Platform.runLater(() -> {
                         outputArea.getChildren().add(wait);
                         outputArea.getChildren().add(link);
-                        outputArea.getChildren().add(new Text(System.lineSeparator()));
-                        playMusic();
+                        if (event.getSource() instanceof Button) {
+                            outputArea.getChildren().add(new Text(System.lineSeparator()));
+                        }
                     });
                 }
                 else {
-
-                    String show = this.nick.toUpperCase()+": " + received ;
-                    show += "\n";
-                    Text wait = new Text(show);
+                    Text nickArea = new Text(this.nick+": ");
+                    nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+                    Text message = new Text(received);
                     Platform.runLater(() -> {
-                        outputArea.getChildren().add(wait);
-
+                        outputArea.getChildren().add(nickArea);
+                        outputArea.getChildren().add(message);
+                        if (event.getSource() instanceof Button) {
+                            outputArea.getChildren().add(new Text(System.lineSeparator()));
+                        }
                     });
+
                 }
             try {
                 sOutput.writeObject(toSent);
@@ -264,8 +277,8 @@ public class ClientController {
                         if(isValidURL(msg)) {
                             final String correct = msg;
                             Hyperlink link = new Hyperlink(msg);
-                            final String userPart = received.getUserName().toUpperCase() + ": ";
-                            Text wait = new Text(userPart);
+                            Text nickArea = new Text(received.getUserName()+": ");
+                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
                             link.setOnAction(new EventHandler<ActionEvent>() {
                                 @Override
                                 public void handle(ActionEvent e) {
@@ -279,18 +292,20 @@ public class ClientController {
                                 }
                             });
                             Platform.runLater(() -> {
-                                outputArea.getChildren().add(wait);
+                                outputArea.getChildren().add(nickArea);
                                 outputArea.getChildren().add(link);
                                 outputArea.getChildren().add(new Text(System.lineSeparator()));
                                 playMusic();
                             });
                         }
                         else {
-                            msg = received.getUserName().toUpperCase() + ": " + msg;
-                            msg += "\n";
-                            Text wait = new Text(msg);
+                            Text nickArea = new Text(received.getUserName()+": ");
+                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+                            Text mesage = new Text(decrytp(received.getContent()));
                             Platform.runLater(() -> {
-                                outputArea.getChildren().add(wait);
+                                outputArea.getChildren().add(nickArea);
+                                outputArea.getChildren().add(mesage);
+                                outputArea.getChildren().add(new Text(System.lineSeparator()));
                                 playMusic();
                             });
                         }
