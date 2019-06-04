@@ -12,9 +12,13 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import messages.Message;
 
+
 import java.awt.*;
+
+import javax.sound.sampled.*;
 import java.io.*;
 import java.net.*;
+
 
 import static messages.KindOfMessage.*;
 
@@ -50,6 +54,10 @@ public class ClientController {
         Counter.setText(Integer.toString(counter));
 
         new ListenFromServer().start();
+
+        Thread  r = new ListenFromServer();
+        r.setDaemon(true);
+        r.start();
         thisStage.setOnCloseRequest(e ->{
             Message exitMessage = new Message();
             exitMessage.setKindOfMessage(DISCONNECTION);
@@ -59,6 +67,7 @@ public class ClientController {
                 ex.printStackTrace();
             }
             Platform.exit();
+
             System.exit(0);
         });
     }
@@ -119,10 +128,14 @@ public class ClientController {
         String received= messagesArea.getText();
         int len=received.length();
         if(!received.isEmpty() && len<280){
+            String encrypted=encrypt(received);//Cesar algorithm
             Message toSent= new Message();
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
-            toSent.setContent(received);
+            toSent.setContent(encrypted);
+            String text=this.nick+": " +received+"\n";
+            Text t = new Text(text);
+            outputArea.getChildren().add(t);
             try {
                 sOutput.writeObject(toSent);
                 messagesArea.setText("");
@@ -142,6 +155,57 @@ public class ClientController {
         }
     }
 
+    public void playMusic(){
+           try{
+               String path= "messengerVoice.wav";
+               AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
+               Clip clip = AudioSystem.getClip();
+               clip.open(audioInputStream);
+               clip.start();
+           } catch (UnsupportedAudioFileException e) {
+               e.printStackTrace();
+           } catch (IOException e) {
+               e.printStackTrace();
+           } catch (LineUnavailableException e) {
+               e.printStackTrace();
+           }
+    }
+
+     //encrypting/decrypting only chars between range 32/122
+    public String encrypt(String text){
+          StringBuilder sb = new StringBuilder(text);
+          int distance=7;
+          for(int i=0;i<sb.length();i++){
+              int c =(int) sb.charAt(i);
+              if(c>31 && c<122){
+               if(c+distance>122){
+                   c = 31 + (distance -(122-c));
+               }else{
+                   c += distance;
+               }
+               sb.setCharAt(i,(char)c);
+              }
+          }
+        return sb.toString();
+    }
+
+    public  String decrytp(String text){
+        StringBuilder sb =new StringBuilder(text);
+        int distance=7;
+        for(int i=0;i<sb.length();i++){
+            int c = (int) sb.charAt(i);
+            if(c>31 && c<123){
+                if(c-distance<32){
+                    c = 123 - (32-(c-distance)) ;
+                }   else{
+                    c -=distance;
+                }
+                sb.setCharAt(i,(char)c);
+            }
+        }
+        return sb.toString();
+    }
+
 
     class ListenFromServer extends Thread {
 
@@ -155,6 +219,7 @@ public class ClientController {
 
                     if(received.getKindOfMessage() == STANDARD_MESSAGE) {
                          String msg = received.getContent();
+                        msg = decrytp(msg);
                         if(isValidURL(msg)) {
                             final String correct = msg;
                             Hyperlink link = new Hyperlink(msg);
@@ -176,6 +241,7 @@ public class ClientController {
                                 outputArea.getChildren().add(wait);
                                 outputArea.getChildren().add(link);
                                 outputArea.getChildren().add(new Text(System.lineSeparator()));
+                                playMusic();
                             });
                         }
                         else {
@@ -184,6 +250,7 @@ public class ClientController {
                             Text wait = new Text(msg);
                             Platform.runLater(() -> {
                                 outputArea.getChildren().add(wait);
+                                playMusic();
                             });
                         }
 

@@ -57,7 +57,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("192.168.0.15");
+                    InetAddress ip = InetAddress.getByName("10.60.0.217");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());

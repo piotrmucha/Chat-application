@@ -61,6 +61,7 @@ public class Server {
             ObjectOutputStream dos = new ObjectOutputStream(s.getOutputStream());
             System.out.println("Creating new thread for this client");
             ClientHandler mtch = new ClientHandler(s, dis, dos);
+
             Thread t = new Thread(mtch);
             System.out.println("Adding client for list");
             ar.add(mtch);
