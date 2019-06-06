@@ -27,6 +27,10 @@ import java.awt.*;
 import javax.sound.sampled.*;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import static messages.KindOfMessage.*;
@@ -150,46 +154,7 @@ public class ClientController {
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
             toSent.setContent(encrypted);
-
-                if(isValidURL(received)) {
-                    final String correct = received;
-                    Hyperlink link = new Hyperlink(received);
-                    final String userPart = this.nick;
-                    Text wait = new Text(userPart);
-                    wait.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-                    link.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent e) {
-                            try {
-                                Desktop.getDesktop().browse(new URL(correct).toURI());
-                            } catch (IOException ex) {
-                                ex.printStackTrace();
-                            } catch (URISyntaxException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    });
-                    Platform.runLater(() -> {
-                        outputArea.getChildren().add(wait);
-                        outputArea.getChildren().add(link);
-                        if (event.getSource() instanceof Button) {
-                            outputArea.getChildren().add(new Text(System.lineSeparator()));
-                        }
-                    });
-                }
-                else {
-                    Text nickArea = new Text(this.nick+": ");
-                    nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-                    Text message = new Text(received);
-                    Platform.runLater(() -> {
-                        outputArea.getChildren().add(nickArea);
-                        outputArea.getChildren().add(message);
-                        if (event.getSource() instanceof Button) {
-                            outputArea.getChildren().add(new Text(System.lineSeparator()));
-                        }
-                    });
-
-                }
+            checkLink(received,nick, event, false );
             try {
                 sOutput.writeObject(toSent);
                 messagesArea.setText("");
@@ -259,7 +224,68 @@ public class ClientController {
         }
         return sb.toString();
     }
-
+    void checkLink (String msg, String userName, ActionEvent event, boolean play) {
+        Text nickArea = new Text(userName+": ");
+        nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        Boolean array [] = new Boolean [msg.length()];
+        Arrays.fill(array, 0, msg.length(), false);
+        String regex = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(msg);
+        ArrayList<Object>  arr= new ArrayList();
+        while (matcher.find()) {
+            int matchStart = matcher.start();
+            int matchEnd = matcher.end();
+            String sub = msg.substring(matchStart, matchEnd);
+            Arrays.fill(array, matchStart, matchEnd, true);
+        }
+        int i = 0;
+        while (i < msg.length()) {
+            StringBuilder part = new StringBuilder();
+            if (array[i]) {
+                while (i < msg.length() && array[i]  ) {
+                    part.append(msg.charAt(i));
+                    i++;
+                }
+                Hyperlink link = new Hyperlink(part.toString());
+                link.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent e) {
+                        try {
+                            Desktop.getDesktop().browse(new URL(part.toString()).toURI());
+                        } catch (IOException | URISyntaxException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                });
+                arr.add(link);
+            }
+            else {
+                while (i < msg.length() && !array[i]  ) {
+                    part.append(msg.charAt(i));
+                    i++;
+                }
+                Text mesage = new Text(part.toString());
+                arr.add(mesage);
+            }
+        }
+        Platform.runLater(() -> {
+            outputArea.getChildren().add(nickArea);
+            for (int k = 0; k < arr.size(); k++) {
+                Object element = arr.get(k);
+                if (element instanceof Text) {
+                    outputArea.getChildren().add((Text)element);
+                }
+                else {
+                    outputArea.getChildren().add((Hyperlink)element);
+                }
+            }
+            if (event.getSource() instanceof Button || play) {
+                outputArea.getChildren().add(new Text(System.lineSeparator()));
+            }
+          if(play)  playMusic();
+        });
+    }
 
     class ListenFromServer extends Thread {
 
@@ -274,42 +300,7 @@ public class ClientController {
                     if(received.getKindOfMessage() == STANDARD_MESSAGE) {
                          String msg = received.getContent();
                         msg = decrytp(msg);
-                        if(isValidURL(msg)) {
-                            final String correct = msg;
-                            Hyperlink link = new Hyperlink(msg);
-                            Text nickArea = new Text(received.getUserName()+": ");
-                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-                            link.setOnAction(new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent e) {
-                                    try {
-                                        Desktop.getDesktop().browse(new URL(correct).toURI());
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                    } catch (URISyntaxException ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            });
-                            Platform.runLater(() -> {
-                                outputArea.getChildren().add(nickArea);
-                                outputArea.getChildren().add(link);
-                                outputArea.getChildren().add(new Text(System.lineSeparator()));
-                                playMusic();
-                            });
-                        }
-                        else {
-                            Text nickArea = new Text(received.getUserName()+": ");
-                            nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-                            Text mesage = new Text(decrytp(received.getContent()));
-                            Platform.runLater(() -> {
-                                outputArea.getChildren().add(nickArea);
-                                outputArea.getChildren().add(mesage);
-                                outputArea.getChildren().add(new Text(System.lineSeparator()));
-                                playMusic();
-                            });
-                        }
-
+                        checkLink(msg, received.getUserName(), new ActionEvent(), true);
                     }                                                              
                     else if(received.getKindOfMessage() == USER_COUNTER) {
                         Counter.setText( Integer.toString( received.getUsersCounter() ) );
