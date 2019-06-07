@@ -60,7 +60,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("192.168.8.103");
+                    InetAddress ip = InetAddress.getByName("188.146.167.187");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
@@ -84,14 +84,16 @@ public class LogController {
             }
         };
         thisStage.setOnCloseRequest(e ->{
-            Message exitMessage = new Message();
-            exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
-            try {
-                output.writeObject(exitMessage);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            if(s!=null && s.isConnected()==true) {
+                Message exitMessage = new Message();
+                exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
+                try {
+                    output.writeObject(exitMessage);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                disconnect();
             }
-            disconnect();
             Platform.exit();
             System.exit(0);
         });
