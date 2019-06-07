@@ -60,7 +60,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("188.146.167.187");
+                    InetAddress ip = InetAddress.getByName("10.60.2.35");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
