@@ -3,25 +3,18 @@ package client;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import messages.Message;
-import javafx.scene.text.Font;
-
-
 import java.awt.*;
 
 import javax.sound.sampled.*;
@@ -53,7 +46,10 @@ public class ClientController {
     private Text Counter;
     @FXML
     private ScrollPane scroll;
+    @FXML
+    void keyPressed(KeyEvent event) {
 
+    }
     public ClientController () {
         sInput = LogController.input;
         sOutput = LogController.output;
@@ -69,8 +65,9 @@ public class ClientController {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (keyEvent.getCode() == KeyCode.ENTER)  {
-
-                    sendMessage(new ActionEvent());
+                    if(messagesArea.getText().trim().isEmpty()==false) {
+                        sendMessage(new ActionEvent());
+                    }
                 }
             }
         });
@@ -86,12 +83,21 @@ public class ClientController {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+            disconnect();
             Platform.exit();
 
             System.exit(0);
         });
     }
-
+    private void disconnect(){
+        try {
+            sInput.close();
+            sOutput.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     void emoticon01Fun(ActionEvent event) {
         messagesArea.appendText("😀");
@@ -131,18 +137,6 @@ public class ClientController {
     void emoticon08Fun(ActionEvent event) {
         messagesArea.appendText("🤣");
     }
-    private boolean isValidURL(String urlString)
-    {
-        try
-        {
-            URL url = new URL(urlString);
-            url.toURI();
-            return true;
-        } catch (Exception exception)
-        {
-            return false;
-        }
-    }
     @FXML
     void sendMessage(ActionEvent event) {
 
@@ -176,7 +170,7 @@ public class ClientController {
 
     public void playMusic(){
            try{
-               String path= "messengerVoice.wav";
+               String path= "notificationVoice.wav";
                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
                Clip clip = AudioSystem.getClip();
                clip.open(audioInputStream);
@@ -254,10 +248,20 @@ public class ClientController {
                         try {
                             Desktop.getDesktop().browse(new URL(part.toString()).toURI());
                         } catch (IOException | URISyntaxException ex) {
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setTitle("Error");
+                                alert.setHeaderText(null);
+                                alert.setContentText("Nie udało otworzyc hiperlinku. Sprawdź czy masz zainstalowaną przeglądarkę internetową.\n" +
+                                        " Sprawdź czy jedna z zainstalowanych przeglądarek jest przeglądarką domyślną.”");
+                                //  username.clear();
+                                alert.showAndWait();
+                            });
                             ex.printStackTrace();
                         }
                     }
                 });
+                link.setStyle("-fx-text-fill: #0066CC");
                 arr.add(link);
             }
             else {
@@ -280,10 +284,10 @@ public class ClientController {
                     outputArea.getChildren().add((Hyperlink)element);
                 }
             }
-            if (event.getSource() instanceof Button || play) {
+            if ((msg.trim()).equals(msg)) {//this can check if event is "ButtonEvent" because  "KeyPressedEvent" generate additional new line
                 outputArea.getChildren().add(new Text(System.lineSeparator()));
             }
-          if(play)  playMusic();
+           if(play)  playMusic();
         });
     }
 

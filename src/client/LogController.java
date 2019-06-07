@@ -33,6 +33,7 @@ public class LogController {
     static String userN;
     static int userCounts = 0;
 
+    private Stage thisStage;
     @FXML
     private TextField username;
     @FXML
@@ -42,7 +43,9 @@ public class LogController {
     @FXML
     private AnchorPane stage;
 
+
     public LogController() {
+        thisStage=Main.primStage;
     }
 
     public void initialize() {
@@ -57,7 +60,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("192.168.0.15");
+                    InetAddress ip = InetAddress.getByName("192.168.8.103");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
@@ -80,9 +83,30 @@ public class LogController {
                 return null;
             }
         };
+        thisStage.setOnCloseRequest(e ->{
+            Message exitMessage = new Message();
+            exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
+            try {
+                output.writeObject(exitMessage);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            disconnect();
+            Platform.exit();
+            System.exit(0);
+        });
         Thread connection = new Thread(task);
         connection.setDaemon(true);
         connection.start();
+    }
+    private void disconnect(){
+        try {
+            input.close();
+            output.close();
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     void loginAction() {
@@ -105,7 +129,7 @@ public class LogController {
     }
 
     @FXML
-    void loginClick() {
+    void loginClick() {       //if we click button  Ustaw Pseudonim, stage starts listen
         Task task = new Task<Void>() {
             @Override
             public Void call() {
@@ -139,7 +163,8 @@ public class LogController {
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();
                         }
-                        if (result.getKindOfMessage()!= KindOfMessage.USER_COUNTER) {
+                        if (result.getKindOfMessage()== KindOfMessage.CONNECTION || result.getKindOfMessage()==KindOfMessage.DISCONNECTION      ||
+                                result.getKindOfMessage()==KindOfMessage.USERS_LIMIT ) {
                             break;
                         }
                     }
@@ -147,12 +172,21 @@ public class LogController {
                     if (answer == KindOfMessage.CONNECTION) {
                         userCounts = result.getUsersCounter();
                         loginAction();
-                    } else {
+                    } else if  (answer == KindOfMessage.DISCONNECTION){
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");
                             alert.setHeaderText(null);
                             alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
+                            alert.showAndWait();
+                        });
+                    } else if (answer == KindOfMessage.USERS_LIMIT){
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Nie udało się dołączyć do chatroomu – limit uczestników konwersacji został osiągnięty." +
+                                    "\n Spróbuj ponownie później.");
                             alert.showAndWait();
                         });
                     }

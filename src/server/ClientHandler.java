@@ -4,15 +4,11 @@ import messages.KindOfMessage;
 import messages.Message;
 
 import java.io.IOException;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-
-
-// ClientHandler class
 class ClientHandler implements Runnable
 {
     private String name;
@@ -20,7 +16,6 @@ class ClientHandler implements Runnable
     final ObjectOutputStream dos;
     Socket s;
     Boolean logged = true;
-    // constructor
 
     public ClientHandler(Socket s,
                          ObjectInputStream dis, ObjectOutputStream dos) {
@@ -54,18 +49,18 @@ class ClientHandler implements Runnable
                 switch( received.getKindOfMessage() ){
                     case TRY_TO_CONNECT:  {
                         boolean flag=true;
-                        System.out.println("TRY_TO_CONNECT");
                         for (ClientHandler mc : Server.ar)
                         {
                             if(received.getUserName().equals(mc.name)){
                                 received.setKindOfMessage(KindOfMessage.DISCONNECTION);
                                 this.dos.writeObject(received);
+                                Server.ar.remove(this);
                                 flag=false;
                                 break;
                             }
 
                         }
-                        if(flag==true) {
+                        if(flag==true&& Server.loginClients<10) {
                             received.setKindOfMessage(KindOfMessage.CONNECTION);
                             Server.loginClients++;
                             received.setUsersCounter(Server.loginClients);
@@ -78,11 +73,14 @@ class ClientHandler implements Runnable
                                     mc.dos.writeObject(received);
                                 }
                             }
+                        }else if(flag==true && Server.loginClients >=10){
+                            received.setKindOfMessage(KindOfMessage.USERS_LIMIT);
+                            this.dos.writeObject(received);
+                            Server.ar.remove(this);
                         }
                         break;
                     }
                     case CONNECTION:  {//proper nickname
-                        System.out.println("CONNECTION");
                         this.setName(received.getUserName());
                         break;
                     }
@@ -90,15 +88,12 @@ class ClientHandler implements Runnable
                         for (ClientHandler mc : Server.ar)
                         {
                             if(mc != this) {
-                                System.out.println("STANDARD_MESSAGE");
                                 mc.dos.writeObject(received);
                             }
                         }
                         break;
                     }
                     case DISCONNECTION: {
-                        //service later
-                        System.out.println("DISCONNECTION");
                         Server.loginClients--;
                         received.setUsersCounter(Server.loginClients);
                         for (ClientHandler mc : Server.ar)
@@ -107,6 +102,11 @@ class ClientHandler implements Runnable
                                 mc.dos.writeObject(received);
                             }
                         }
+                        Server.ar.remove(this);
+                        logged = false;
+                        break;
+                    }
+                    case SOFT_DISCONNETION: {
                         Server.ar.remove(this);
                         logged = false;
                         break;
