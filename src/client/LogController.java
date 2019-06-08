@@ -87,11 +87,13 @@ public class LogController {
                         System.exit(0);
                     });
                 }
+                Platform.runLater(() -> {
                 status.getChildren().clear();
                 Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
                 status.getChildren().add(correct);
                 username.setDisable(false);
                 click.setDisable(false);
+                });
                 return null;
             }
         };
