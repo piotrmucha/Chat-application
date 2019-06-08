@@ -91,11 +91,6 @@ public class ClientController {
     }
     public void exitApp(){
         Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(null);
-            alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
-            alert.showAndWait();
             Platform.exit();
             System.exit(0);
         });

@@ -50,11 +50,6 @@ public class LogController {
 
         public void exitApp(){
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
-                alert.showAndWait();
                 Platform.exit();
                 System.exit(0);
             });
@@ -72,7 +67,7 @@ public class LogController {
             @Override
             public Void call() {
                 try {
-                    InetAddress ip = InetAddress.getByName("10.80.185.97");
+                    InetAddress ip = InetAddress.getByName("192.168.137.195");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
