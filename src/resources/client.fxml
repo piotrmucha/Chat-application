@@ -11,16 +11,16 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="424.0" prefWidth="440.0" style="-fx-background-color: #9ba3a2;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="431.0" prefWidth="440.0" style="-fx-background-color: #9ba3a2;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
 
     <ScrollPane fx:id="scroll" layoutX="9.0" layoutY="21.0" vvalue="1.0">
         <content>
-            <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="353.0" prefWidth="423.0" style="-fx-background-color: white;" />
+            <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="346.0" prefWidth="412.0" style="-fx-background-color: white;" />
         </content>
     </ScrollPane>
     <TextArea fx:id="messagesArea" layoutX="10.0" layoutY="380.0" onKeyPressed="#keyPressed" prefHeight="38.0" prefWidth="298.0" />
     <Button defaultButton="true" layoutX="316.0" layoutY="380.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="38.0" prefWidth="57.0" style="-fx-background-color: #5e9bff;" text="WYŚLIJ" textFill="WHITE" />
-    <Text fill="WHITE" layoutX="70.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 14;" text="         Liczba uczestników konwersacji: " textAlignment="CENTER" wrappingWidth="253.0000000000001">
+    <Text fill="WHITE" layoutX="54.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 14;" text="         Liczba uczestników konwersacji: " textAlignment="CENTER" wrappingWidth="253.0000000000001">
         <font>
             <Font name="System Bold" size="12.0" />
         </font>
@@ -40,7 +40,6 @@
             <Insets left="5.0" />
         </padding>
     </MenuButton>
-    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-    <Text fx:id="Counter" fill="WHITE" layoutX="324.0" layoutY="17.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 16;" text="0" wrappingWidth="9.887003421783447" />
+    <Text fx:id="Counter" fill="WHITE" layoutX="328.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 16;" text="0" wrappingWidth="32.53674602508545" />
 
 </Pane>
