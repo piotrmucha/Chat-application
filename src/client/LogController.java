@@ -48,6 +48,18 @@ public class LogController {
         thisStage=Main.primStage;
     }
 
+        public void exitApp(){
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
+                alert.showAndWait();
+                Platform.exit();
+                System.exit(0);
+            });
+        }
+         
     public void initialize() {
         // Platform.runLater(()-> {
         Text wait = new Text("Czekam na połączenie..");
@@ -90,6 +102,7 @@ public class LogController {
                 try {
                     output.writeObject(exitMessage);
                 } catch (IOException ex) {
+                    exitApp();
                     ex.printStackTrace();
                 }
                 disconnect();
@@ -107,6 +120,7 @@ public class LogController {
             output.close();
             s.close();
         } catch (IOException e) {
+            exitApp();
             e.printStackTrace();
         }
     }
@@ -124,6 +138,7 @@ public class LogController {
                 currentStage.getIcons().add(new Image("resources/icon.png"));
                 currentStage.show();
             } catch (IOException e) {
+                exitApp();
                 e.printStackTrace();
             }
 
@@ -156,6 +171,7 @@ public class LogController {
                     try {
                         output.writeObject(loginTry);
                     } catch (IOException e) {
+                        exitApp();
                         e.printStackTrace();
                     }
 
@@ -164,6 +180,7 @@ public class LogController {
                         try {
                             result = (Message) input.readObject();
                         } catch (IOException | ClassNotFoundException e) {
+                            exitApp();
                             e.printStackTrace();
                         }
                         if (result.getKindOfMessage()== KindOfMessage.CONNECTION || result.getKindOfMessage()==KindOfMessage.DISCONNECTION  ||

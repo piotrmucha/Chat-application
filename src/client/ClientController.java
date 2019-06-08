@@ -53,6 +53,7 @@ public class ClientController {
     void keyPressed(KeyEvent event) {
 
     }
+
     public ClientController () {
         sInput = LogController.input;
         sOutput = LogController.output;
@@ -84,9 +85,21 @@ public class ClientController {
             try {
                 sOutput.writeObject(exitMessage);
             } catch (IOException ex) {
+                exitApp();
                 ex.printStackTrace();
             }
             disconnect();
+            Platform.exit();
+            System.exit(0);
+        });
+    }
+    public void exitApp(){
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
+            alert.showAndWait();
             Platform.exit();
             System.exit(0);
         });
@@ -97,6 +110,7 @@ public class ClientController {
             sOutput.close();
             socket.close();
         } catch (IOException e) {
+            exitApp();
             e.printStackTrace();
         }
     }
@@ -145,6 +159,7 @@ public class ClientController {
         String received= messagesArea.getText();
         int len=received.length();
         if(!received.isEmpty() && len<280){
+            messagesArea.setText("");
             String encrypted=encrypt(received);//Cesar algorithm
             Message toSent= new Message();
             toSent.setUserName(nick);
@@ -153,8 +168,8 @@ public class ClientController {
             checkLink(received,nick, event, false );
             try {
                 sOutput.writeObject(toSent);
-                messagesArea.setText("");
             } catch (IOException e) {
+                exitApp();
                 System.out.println("Problem z wysyłaniem wiadomości");
                 e.printStackTrace();
             }
@@ -178,10 +193,13 @@ public class ClientController {
                clip.open(audioInputStream);
                clip.start();
            } catch (UnsupportedAudioFileException e) {
+               exitApp();
                e.printStackTrace();
            } catch (IOException e) {
+               exitApp();
                e.printStackTrace();
            } catch (LineUnavailableException e) {
+               exitApp();
                e.printStackTrace();
            }
     }
@@ -315,6 +333,7 @@ public class ClientController {
                     }
 
                 }catch(ClassNotFoundException e ){
+                    exitApp();
                     e.printStackTrace();
                 }
                 catch (SocketException t) {
@@ -322,7 +341,9 @@ public class ClientController {
                         sOutput.close();
                         sInput.close();
                         socket.close();
+                        exitApp();
                     } catch (IOException e) {
+                        exitApp();
                         e.printStackTrace();
                     }
                 //    outputArea.appendText("Utracono połączenie z serwerem, sprawdz połączenie internetowe \n");
@@ -332,12 +353,15 @@ public class ClientController {
                         sOutput.close();
                         sInput.close();
                         socket.close();
+                        exitApp();
                     } catch (IOException e) {
+                        exitApp();
                         k.printStackTrace();
                     }
                   //  outputArea.appendText("Zbyt  długi czas oczekiwania na połączenie z siecią internetową \n");
                     break;
                 } catch (IOException e) {
+                    exitApp();
                     e.printStackTrace();
 
                 }
