@@ -18,7 +18,7 @@
             <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="346.0" prefWidth="412.0" style="-fx-background-color: white;" />
         </content>
     </ScrollPane>
-    <TextArea fx:id="messagesArea" layoutX="10.0" layoutY="380.0" onKeyPressed="#keyPressed" prefHeight="38.0" prefWidth="298.0" />
+    <TextArea fx:id="messagesArea" layoutX="10.0" layoutY="380.0" prefHeight="38.0" prefWidth="298.0" />
     <Button defaultButton="true" layoutX="316.0" layoutY="380.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="38.0" prefWidth="57.0" style="-fx-background-color: #5e9bff;" text="WYŚLIJ" textFill="WHITE" />
     <Text fill="WHITE" layoutX="54.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 14;" text="         Liczba uczestników konwersacji: " textAlignment="CENTER" wrappingWidth="253.0000000000001">
         <font>

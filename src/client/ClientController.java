@@ -49,10 +49,6 @@ public class ClientController {
     private Text Counter;
     @FXML
     private ScrollPane scroll;
-    @FXML
-    void keyPressed(KeyEvent event) {
-
-    }
 
     public ClientController () {
         sInput = LogController.input;
@@ -84,7 +80,7 @@ public class ClientController {
             exitMessage.setKindOfMessage(DISCONNECTION);
             try {
                 sOutput.writeObject(exitMessage);
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 exitApp();
                 ex.printStackTrace();
             }
@@ -109,7 +105,7 @@ public class ClientController {
             sInput.close();
             sOutput.close();
             socket.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             exitApp();
             e.printStackTrace();
         }
@@ -168,9 +164,8 @@ public class ClientController {
             checkLink(received,nick, event, false );
             try {
                 sOutput.writeObject(toSent);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 exitApp();
-                System.out.println("Problem z wysyłaniem wiadomości");
                 e.printStackTrace();
             }
         } else if(len>=280){
@@ -332,38 +327,16 @@ public class ClientController {
                         Counter.setText( Integer.toString( received.getUsersCounter() ) );
                     }
 
-                }catch(ClassNotFoundException e ){
-                    exitApp();
-                    e.printStackTrace();
-                }
-                catch (SocketException t) {
+                }catch (Exception e) {
                     try {
                         sOutput.close();
                         sInput.close();
                         socket.close();
                         exitApp();
-                    } catch (IOException e) {
+                    } catch (IOException e01) {
                         exitApp();
-                        e.printStackTrace();
+                        e01.printStackTrace();
                     }
-                //    outputArea.appendText("Utracono połączenie z serwerem, sprawdz połączenie internetowe \n");
-                    break;
-                } catch (SocketTimeoutException k) {
-                    try {
-                        sOutput.close();
-                        sInput.close();
-                        socket.close();
-                        exitApp();
-                    } catch (IOException e) {
-                        exitApp();
-                        k.printStackTrace();
-                    }
-                  //  outputArea.appendText("Zbyt  długi czas oczekiwania na połączenie z siecią internetową \n");
-                    break;
-                } catch (IOException e) {
-                    exitApp();
-                    e.printStackTrace();
-
                 }
             }
         }

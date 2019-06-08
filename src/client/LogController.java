@@ -103,7 +103,7 @@ public class LogController {
                 exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
                 try {
                     output.writeObject(exitMessage);
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     exitApp();
                     ex.printStackTrace();
                 }
@@ -121,7 +121,7 @@ public class LogController {
             input.close();
             output.close();
             s.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             exitApp();
             e.printStackTrace();
         }
@@ -139,7 +139,7 @@ public class LogController {
                 currentStage.setTitle("Okno czatu");
                 currentStage.getIcons().add(new Image("resources/icon.png"));
                 currentStage.show();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 exitApp();
                 e.printStackTrace();
             }
