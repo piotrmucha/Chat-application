@@ -23,7 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.*;
+import java.net.Socket;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -38,44 +39,42 @@ public class ClientController {
     private String nick;
     private int counter;
     private Stage thisStage;
-
     @FXML
     private TextFlow outputArea;
-
     @FXML
     private TextArea messagesArea;
-
     @FXML
     private Text Counter;
     @FXML
     private ScrollPane scroll;
 
-    public ClientController () {
+    public ClientController() {
         sInput = LogController.input;
         sOutput = LogController.output;
         socket = LogController.s;
         nick = LogController.userN;
-        counter=LogController.userCounts;
-        thisStage=Main.primStage;
+        counter = LogController.userCounts;
+        thisStage = Main.primStage;
     }
-    public void initialize(){
+
+    public void initialize() {
         scroll.vvalueProperty().bind(outputArea.heightProperty());
         Counter.setText(Integer.toString(counter));
         messagesArea.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if (keyEvent.getCode() == KeyCode.ENTER)  {
-                    if(messagesArea.getText().trim().isEmpty()==false) {
+                if (keyEvent.getCode() == KeyCode.ENTER) {
+                    if (messagesArea.getText().trim().isEmpty() == false) {
                         sendMessage(new ActionEvent());
                     }
                 }
             }
         });
 
-        Thread  r = new ListenFromServer();
+        Thread r = new ListenFromServer();
         r.setDaemon(true);
         r.start();
-        thisStage.setOnCloseRequest(e ->{
+        thisStage.setOnCloseRequest(e -> {
             Message exitMessage = new Message();
             exitMessage.setKindOfMessage(DISCONNECTION);
             try {
@@ -89,13 +88,15 @@ public class ClientController {
             System.exit(0);
         });
     }
-    public void exitApp(){
+
+    public void exitApp() {
         Platform.runLater(() -> {
             Platform.exit();
             System.exit(0);
         });
     }
-    private void disconnect(){
+
+    private void disconnect() {
         try {
             sInput.close();
             sOutput.close();
@@ -105,6 +106,7 @@ public class ClientController {
             e.printStackTrace();
         }
     }
+
     @FXML
     void emoticon01Fun(ActionEvent event) {
         messagesArea.appendText("😀");
@@ -122,7 +124,7 @@ public class ClientController {
 
     @FXML
     void emoticon04Fun(ActionEvent event) {
-        messagesArea.appendText( "😡");
+        messagesArea.appendText("😡");
     }
 
     @FXML
@@ -144,26 +146,27 @@ public class ClientController {
     void emoticon08Fun(ActionEvent event) {
         messagesArea.appendText("🤣");
     }
+
     @FXML
     void sendMessage(ActionEvent event) {
 
-        String received= messagesArea.getText();
-        int len=received.length();
-        if(!received.isEmpty() && len<280){
+        String received = messagesArea.getText();
+        int len = received.length();
+        if (!received.isEmpty() && len < 280) {
             messagesArea.setText("");
-            String encrypted=encrypt(received);//Cesar algorithm
-            Message toSent= new Message();
+            String encrypted = encrypt(received);//Cesar algorithm
+            Message toSent = new Message();
             toSent.setUserName(nick);
             toSent.setKindOfMessage(STANDARD_MESSAGE);
             toSent.setContent(encrypted);
-            checkLink(received,nick, event, false );
+            checkLink(received, nick, event, false);
             try {
                 sOutput.writeObject(toSent);
             } catch (Exception e) {
                 exitApp();
                 e.printStackTrace();
             }
-        } else if(len>=280){
+        } else if (len >= 280) {
             Platform.runLater(() -> {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Error");
@@ -175,68 +178,69 @@ public class ClientController {
         }
     }
 
-    public void playMusic(){
-           try{
-               String path= "notificationVoice.wav";
-               AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
-               Clip clip = AudioSystem.getClip();
-               clip.open(audioInputStream);
-               clip.start();
-           } catch (UnsupportedAudioFileException e) {
-               exitApp();
-               e.printStackTrace();
-           } catch (IOException e) {
-               exitApp();
-               e.printStackTrace();
-           } catch (LineUnavailableException e) {
-               exitApp();
-               e.printStackTrace();
-           }
+    public void playMusic() {
+        try {
+            String path = "notificationVoice.wav";
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException e) {
+            exitApp();
+            e.printStackTrace();
+        } catch (IOException e) {
+            exitApp();
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            exitApp();
+            e.printStackTrace();
+        }
     }
 
-     //encrypting/decrypting only chars between range 32/122
-    public String encrypt(String text){
-          StringBuilder sb = new StringBuilder(text);
-          int distance=7;
-          for(int i=0;i<sb.length();i++){
-              int c =(int) sb.charAt(i);
-              if(c>31 && c<123){
-               if(c+distance>122){
-                   c = 31 + (distance -(122-c));
-               }else{
-                   c += distance;
-               }
-               sb.setCharAt(i,(char)c);
-              }
-          }
-        return sb.toString();
-    }
-
-    public  String decrytp(String text){
-        StringBuilder sb =new StringBuilder(text);
-        int distance=7;
-        for(int i=0;i<sb.length();i++){
+    //encrypting/decrypting only chars between range 32/122
+    public String encrypt(String text) {
+        StringBuilder sb = new StringBuilder(text);
+        int distance = 7;
+        for (int i = 0; i < sb.length(); i++) {
             int c = (int) sb.charAt(i);
-            if(c>31 && c<123){
-                if(c-distance<32){
-                    c = 123 - (32-(c-distance)) ;
-                }   else{
-                    c -=distance;
+            if (c > 31 && c < 123) {
+                if (c + distance > 122) {
+                    c = 31 + (distance - (122 - c));
+                } else {
+                    c += distance;
                 }
-                sb.setCharAt(i,(char)c);
+                sb.setCharAt(i, (char) c);
             }
         }
         return sb.toString();
     }
-    void checkLink (String msg, String userName, ActionEvent event, boolean play) {
-        Text nickArea = new Text(userName+": ");
+
+    public String decrytp(String text) {
+        StringBuilder sb = new StringBuilder(text);
+        int distance = 7;
+        for (int i = 0; i < sb.length(); i++) {
+            int c = (int) sb.charAt(i);
+            if (c > 31 && c < 123) {
+                if (c - distance < 32) {
+                    c = 123 - (32 - (c - distance));
+                } else {
+                    c -= distance;
+                }
+                sb.setCharAt(i, (char) c);
+            }
+        }
+        return sb.toString();
+    }
+
+    void checkLink(String msg, String userName, ActionEvent event, boolean play) {
+        Text nickArea = new Text(userName + ": ");
         nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-        Boolean array [] = new Boolean [msg.length()];
+        Boolean array[] = new Boolean[msg.length()];
         Arrays.fill(array, 0, msg.length(), false);
         String regex = "https?:\\/\\/(www\\.)?[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%_\\+.~#?&//=]*)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(msg);
-        ArrayList<Object>  arr= new ArrayList();
+        ArrayList<Object> arr = new ArrayList();
         while (matcher.find()) {
             int matchStart = matcher.start();
             int matchEnd = matcher.end();
@@ -247,7 +251,7 @@ public class ClientController {
         while (i < msg.length()) {
             StringBuilder part = new StringBuilder();
             if (array[i]) {
-                while (i < msg.length() && array[i]  ) {
+                while (i < msg.length() && array[i]) {
                     part.append(msg.charAt(i));
                     i++;
                 }
@@ -257,14 +261,13 @@ public class ClientController {
                     public void handle(ActionEvent e) {
                         try {
                             Desktop.getDesktop().browse(new URL(part.toString()).toURI());
-                        } catch (IOException | URISyntaxException ex) {
+                        } catch (Exception ex) {
                             Platform.runLater(() -> {
                                 Alert alert = new Alert(Alert.AlertType.ERROR);
                                 alert.setTitle("Error");
                                 alert.setHeaderText(null);
                                 alert.setContentText("Nie udało otworzyc hiperlinku. Sprawdź czy masz zainstalowaną przeglądarkę internetową.\n" +
                                         " Sprawdź czy jedna z zainstalowanych przeglądarek jest przeglądarką domyślną.”");
-                                //  username.clear();
                                 alert.showAndWait();
                             });
                             ex.printStackTrace();
@@ -273,9 +276,8 @@ public class ClientController {
                 });
                 link.setStyle("-fx-text-fill: #0066CC");
                 arr.add(link);
-            }
-            else {
-                while (i < msg.length() && !array[i]  ) {
+            } else {
+                while (i < msg.length() && !array[i]) {
                     part.append(msg.charAt(i));
                     i++;
                 }
@@ -288,16 +290,15 @@ public class ClientController {
             for (int k = 0; k < arr.size(); k++) {
                 Object element = arr.get(k);
                 if (element instanceof Text) {
-                    outputArea.getChildren().add((Text)element);
-                }
-                else {
-                    outputArea.getChildren().add((Hyperlink)element);
+                    outputArea.getChildren().add((Text) element);
+                } else {
+                    outputArea.getChildren().add((Hyperlink) element);
                 }
             }
             if ((msg.trim()).equals(msg)) {//this can check if event is "ButtonEvent" because  "KeyPressedEvent" generate additional new line
                 outputArea.getChildren().add(new Text(System.lineSeparator()));
             }
-           if(play)  playMusic();
+            if (play) playMusic();
         });
     }
 
@@ -311,18 +312,17 @@ public class ClientController {
                     // read the message sent to this client
                     received = (Message) sInput.readObject();
 
-                    if(received.getKindOfMessage() == STANDARD_MESSAGE) {
-                         String msg = received.getContent();
+                    if (received.getKindOfMessage() == STANDARD_MESSAGE) {
+                        String msg = received.getContent();
                         msg = decrytp(msg);
                         checkLink(msg, received.getUserName(), new ActionEvent(), true);
-                    }                                                              
-                    else if(received.getKindOfMessage() == USER_COUNTER) {
-                        Counter.setText( Integer.toString( received.getUsersCounter() ) );
-                    } else if(received.getKindOfMessage() == DISCONNECTION){
-                        Counter.setText( Integer.toString( received.getUsersCounter() ) );
+                    } else if (received.getKindOfMessage() == USER_COUNTER) {
+                        Counter.setText(Integer.toString(received.getUsersCounter()));
+                    } else if (received.getKindOfMessage() == DISCONNECTION) {
+                        Counter.setText(Integer.toString(received.getUsersCounter()));
                     }
 
-                }catch (Exception e) {
+                } catch (Exception e) {
                     try {
                         sOutput.close();
                         sInput.close();
@@ -335,6 +335,5 @@ public class ClientController {
                 }
             }
         }
-
     }
 }

@@ -45,24 +45,22 @@ public class LogController {
 
 
     public LogController() {
-        thisStage=Main.primStage;
+        thisStage = Main.primStage;
     }
 
-        public void exitApp(){
-            Platform.runLater(() -> {
-                Platform.exit();
-                System.exit(0);
-            });
-        }
-         
+    public void exitApp() {
+        Platform.runLater(() -> {
+            Platform.exit();
+            System.exit(0);
+        });
+    }
+
     public void initialize() {
-        // Platform.runLater(()-> {
         Text wait = new Text("Czekam na połączenie..");
         status.getChildren().add(wait);
         status.setTextAlignment(TextAlignment.CENTER);
         username.setDisable(true);
         click.setDisable(true);
-        //  });
         Task task = new Task<Void>() {
             @Override
             public Void call() {
@@ -83,17 +81,17 @@ public class LogController {
                     });
                 }
                 Platform.runLater(() -> {
-                status.getChildren().clear();
-                Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
-                status.getChildren().add(correct);
-                username.setDisable(false);
-                click.setDisable(false);
+                    status.getChildren().clear();
+                    Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
+                    status.getChildren().add(correct);
+                    username.setDisable(false);
+                    click.setDisable(false);
                 });
                 return null;
             }
         };
-        thisStage.setOnCloseRequest(e ->{
-            if(s!=null && s.isConnected()==true) {
+        thisStage.setOnCloseRequest(e -> {
+            if (s != null && s.isConnected() == true) {
                 Message exitMessage = new Message();
                 exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
                 try {
@@ -111,7 +109,8 @@ public class LogController {
         connection.setDaemon(true);
         connection.start();
     }
-    private void disconnect(){
+
+    private void disconnect() {
         try {
             input.close();
             output.close();
@@ -156,7 +155,6 @@ public class LogController {
                         alert.setTitle("Error");
                         alert.setHeaderText(null);
                         alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
-                        //  username.clear();
                         alert.showAndWait();
                     });
                 } else {
@@ -164,7 +162,7 @@ public class LogController {
                     KindOfMessage logging = KindOfMessage.TRY_TO_CONNECT;
                     loginTry.setKindOfMessage(logging);
                     loginTry.setUserName(user);
-                    
+
                     try {
                         output.writeObject(loginTry);
                     } catch (IOException e) {
@@ -180,8 +178,8 @@ public class LogController {
                             exitApp();
                             e.printStackTrace();
                         }
-                        if (result.getKindOfMessage()== KindOfMessage.CONNECTION || result.getKindOfMessage()==KindOfMessage.DISCONNECTION  ||
-                                result.getKindOfMessage()==KindOfMessage.USERS_LIMIT ) {
+                        if (result.getKindOfMessage() == KindOfMessage.CONNECTION || result.getKindOfMessage() == KindOfMessage.DISCONNECTION ||
+                                result.getKindOfMessage() == KindOfMessage.USERS_LIMIT) {
                             break;
                         }
                     }
@@ -189,7 +187,7 @@ public class LogController {
                     if (answer == KindOfMessage.CONNECTION) {
                         userCounts = result.getUsersCounter();
                         loginAction();
-                    } else if  (answer == KindOfMessage.DISCONNECTION){
+                    } else if (answer == KindOfMessage.DISCONNECTION) {
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");
@@ -197,7 +195,7 @@ public class LogController {
                             alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
                             alert.showAndWait();
                         });
-                    } else if (answer == KindOfMessage.USERS_LIMIT){
+                    } else if (answer == KindOfMessage.USERS_LIMIT) {
                         Platform.runLater(() -> {
                             Alert alert = new Alert(Alert.AlertType.ERROR);
                             alert.setTitle("Error");

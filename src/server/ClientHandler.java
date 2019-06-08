@@ -7,15 +7,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
 
-class ClientHandler implements Runnable
-{
-    private String name;
+class ClientHandler implements Runnable {
     final ObjectInputStream dis;
     final ObjectOutputStream dos;
     Socket s;
     Boolean logged = true;
+    private String name;
 
     public ClientHandler(Socket s,
                          ObjectInputStream dis, ObjectOutputStream dos) {
@@ -24,69 +22,62 @@ class ClientHandler implements Runnable
         this.s = s;
     }
 
+    public String getName() {
+        return name;
+    }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
     public void run() {
 
         Message received = null;
-        while (true)
-        {
-            try
-            {
+        while (true) {
+            try {
                 try {
                     received = (Message) dis.readObject();
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                switch( received.getKindOfMessage() ){
-                    case TRY_TO_CONNECT:  {
-                        boolean flag=true;
-                        for (ClientHandler mc : Server.ar)
-                        {
-                            if(received.getUserName().equals(mc.name)){
+                switch (received.getKindOfMessage()) {
+                    case TRY_TO_CONNECT: {
+                        boolean flag = true;
+                        for (ClientHandler mc : Server.ar) {
+                            if (received.getUserName().equals(mc.name)) {
                                 received.setKindOfMessage(KindOfMessage.DISCONNECTION);
                                 this.dos.writeObject(received);
-                                flag=false;
+                                flag = false;
                                 break;
                             }
 
                         }
-                        if(flag==true&& Server.loginClients<10) {
+                        if (flag == true && Server.loginClients < 10) {
                             received.setKindOfMessage(KindOfMessage.CONNECTION);
                             Server.loginClients++;
                             received.setUsersCounter(Server.loginClients);
                             this.setName(received.getUserName());
                             dos.writeObject(received);
                             received.setKindOfMessage(KindOfMessage.USER_COUNTER);
-                            for (ClientHandler mc : Server.ar)
-                            {
-                                if (mc!=this) {
+                            for (ClientHandler mc : Server.ar) {
+                                if (mc != this) {
                                     mc.dos.writeObject(received);
                                 }
                             }
-                        }else if(flag==true && Server.loginClients >=10){
+                        } else if (flag == true && Server.loginClients >= 10) {
                             received.setKindOfMessage(KindOfMessage.USERS_LIMIT);
                             this.dos.writeObject(received);
-                            Server.ar.remove(this);
                         }
                         break;
                     }
-                    case CONNECTION:  {//proper nickname
+                    case CONNECTION: {//proper nickname
                         this.setName(received.getUserName());
                         break;
                     }
-                    case STANDARD_MESSAGE:  {
-                        for (ClientHandler mc : Server.ar)
-                        {
-                            if(mc != this) {
+                    case STANDARD_MESSAGE: {
+                        for (ClientHandler mc : Server.ar) {
+                            if (mc != this) {
                                 mc.dos.writeObject(received);
                             }
                         }
@@ -95,9 +86,8 @@ class ClientHandler implements Runnable
                     case DISCONNECTION: {
                         Server.loginClients--;
                         received.setUsersCounter(Server.loginClients);
-                        for (ClientHandler mc : Server.ar)
-                        {
-                            if (mc!=this && mc.getName()!=null) {
+                        for (ClientHandler mc : Server.ar) {
+                            if (mc != this && mc.getName() != null) {
                                 mc.dos.writeObject(received);
                             }
                         }
@@ -115,24 +105,22 @@ class ClientHandler implements Runnable
                 if (logged == false) {
                     break;
                 }
-            }
-            catch (Exception e) {
-                    System.out.println("SocketException");
-                    Server.loginClients--;
-                    Message mess = new Message();
-                    mess.setKindOfMessage(KindOfMessage.DISCONNECTION);
-                    mess.setUsersCounter(Server.loginClients);
+            } catch (Exception e) {
+                System.out.println("SocketException");
+                Server.loginClients--;
+                Message mess = new Message();
+                mess.setKindOfMessage(KindOfMessage.DISCONNECTION);
+                mess.setUsersCounter(Server.loginClients);
 
-                    for (ClientHandler mc : Server.ar)
-                    {
-                    if (mc!=this && mc.getName()!=null) {
+                for (ClientHandler mc : Server.ar) {
+                    if (mc != this && mc.getName() != null) {
                         try {
                             mc.dos.writeObject(mess);
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
                     }
-                    }
+                }
                 Server.ar.remove(this);
                 try {
                     this.s.close();
@@ -141,14 +129,12 @@ class ClientHandler implements Runnable
                 }
                 break;
             }
-
         }
-        try
-        {
+        try {
             this.dis.close();
             this.dos.close();
 
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

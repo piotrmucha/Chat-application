@@ -1,7 +1,12 @@
 package server;
 
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.Vector;
 
 public class Server {
@@ -9,7 +14,6 @@ public class Server {
     static int loginClients = 0;
     private volatile static Server instance;
     private Server() {
-
     }
 
     public static Server getInstance() {
@@ -20,7 +24,6 @@ public class Server {
                 }
             }
         }
-
         return instance;
     }
 
@@ -31,28 +34,18 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void run() throws IOException {
-        // method to find proper ip for server
-       /* URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = new BufferedReader(new InputStreamReader(
-                whatismyip.openStream()));
-
-        String iep = in.readLine(); //you get the IP as a String
-        System.out.println(iep);*/
         String ip;
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             ip = socket.getLocalAddress().getHostAddress();
-
         }
         ServerSocket ss = new ServerSocket(4998, 1, InetAddress.getByName(ip));
         System.out.println("\r\nRunning Server: " +
                 "Host=" + ss.getLocalSocketAddress() +
                 " Port=" + ss.getLocalPort());
-
         Socket s;
 
         while (true) {
