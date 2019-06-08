@@ -116,8 +116,24 @@ class ClientHandler implements Runnable
                     break;
                 }
             }
-            catch (SocketException e) {
+            catch (Exception e) {
                     System.out.println("SocketException");
+                    Server.loginClients--;
+                    Message mess = new Message();
+                    mess.setKindOfMessage(KindOfMessage.DISCONNECTION);
+                    mess.setUsersCounter(Server.loginClients);
+
+                    for (ClientHandler mc : Server.ar)
+                    {
+                    if (mc!=this && mc.getName()!=null) {
+                        try {
+                            mc.dos.writeObject(mess);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                    }
+                Server.ar.remove(this);
                 try {
                     this.s.close();
                 } catch (IOException ex) {
@@ -125,9 +141,7 @@ class ClientHandler implements Runnable
                 }
                 break;
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
+
         }
         try
         {
