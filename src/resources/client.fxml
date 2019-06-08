@@ -13,7 +13,7 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="424.0" prefWidth="440.0" style="-fx-background-color: #9ba3a2;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
 
-    <ScrollPane fx:id="scroll" hbarPolicy="NEVER" layoutX="9.0" layoutY="21.0" vvalue="1.0">
+    <ScrollPane fx:id="scroll" layoutX="9.0" layoutY="21.0" vvalue="1.0">
         <content>
             <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="353.0" prefWidth="423.0" style="-fx-background-color: white;" />
         </content>

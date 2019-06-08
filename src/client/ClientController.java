@@ -225,7 +225,7 @@ public class ClientController {
         nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
         Boolean array [] = new Boolean [msg.length()];
         Arrays.fill(array, 0, msg.length(), false);
-        String regex = "https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)";
+        String regex = "https?:\\/\\/(www\\.)?[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%_\\+.~#?&//=]*)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(msg);
         ArrayList<Object>  arr= new ArrayList();

@@ -54,7 +54,6 @@ class ClientHandler implements Runnable
                             if(received.getUserName().equals(mc.name)){
                                 received.setKindOfMessage(KindOfMessage.DISCONNECTION);
                                 this.dos.writeObject(received);
-                                Server.ar.remove(this);
                                 flag=false;
                                 break;
                             }
@@ -98,7 +97,7 @@ class ClientHandler implements Runnable
                         received.setUsersCounter(Server.loginClients);
                         for (ClientHandler mc : Server.ar)
                         {
-                            if (mc!=this) {
+                            if (mc!=this && mc.getName()!=null) {
                                 mc.dos.writeObject(received);
                             }
                         }
