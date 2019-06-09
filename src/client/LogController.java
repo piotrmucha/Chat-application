@@ -64,12 +64,14 @@ public class LogController {
         Task task = new Task<Void>() {
             @Override
             public Void call() {
+                boolean correctConnection = true;
                 try {
-                    InetAddress ip = InetAddress.getByName("192.168.137.195");
+                    InetAddress ip = InetAddress.getByName("192.168.0.15");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
                 } catch (Exception e) {
+                    correctConnection = false;
                     Platform.runLater(() -> {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
@@ -80,13 +82,15 @@ public class LogController {
                         System.exit(0);
                     });
                 }
-                Platform.runLater(() -> {
-                    status.getChildren().clear();
-                    Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
-                    status.getChildren().add(correct);
-                    username.setDisable(false);
-                    click.setDisable(false);
-                });
+                if (correctConnection) {
+                    Platform.runLater(() -> {
+                        status.getChildren().clear();
+                        Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
+                        status.getChildren().add(correct);
+                        username.setDisable(false);
+                        click.setDisable(false);
+                    });
+                }
                 return null;
             }
         };
