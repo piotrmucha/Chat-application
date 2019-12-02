@@ -13,12 +13,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("../resources/login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/login.fxml"));
         primStage=primaryStage;
         Parent root = loader.load();
         Scene scene = new Scene(root);
         primStage.setTitle("Okno logowania");
-        primStage.getIcons().add(new Image("resources/icon.png"));
+        primStage.getIcons().add(new Image("icon.png"));
         primStage.setScene(scene);
         primStage.show();
     }

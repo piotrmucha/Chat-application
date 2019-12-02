@@ -66,7 +66,7 @@ public class LogController {
             public Void call() {
                 boolean correctConnection = true;
                 try {
-                    InetAddress ip = InetAddress.getByName("192.168.0.15");
+                    InetAddress ip = InetAddress.getByName("192.168.0.17");
                     s = new Socket(ip, ServerPort);
                     output = new ObjectOutputStream(s.getOutputStream());
                     input = new ObjectInputStream(s.getInputStream());
@@ -130,12 +130,12 @@ public class LogController {
 
             try {
                 Stage currentStage = (Stage) stage.getScene().getWindow();
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/resources/client.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/client.fxml"));
                 Parent content = loader.load();
                 Scene scene = new Scene(content);
                 currentStage.setScene(scene);
                 currentStage.setTitle("Okno czatu");
-                currentStage.getIcons().add(new Image("resources/icon.png"));
+                currentStage.getIcons().add(new Image("icon.png"));
                 currentStage.show();
             } catch (Exception e) {
                 exitApp();
