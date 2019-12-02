@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -180,7 +182,9 @@ public class ClientController {
 
     public void playMusic() {
         try {
-            String path = "notificationVoice.wav";
+            URL res = getClass().getClassLoader().getResource("notificationVoice.wav");
+            File file = Paths.get(res.toURI()).toFile();
+            String path = file.getAbsolutePath();
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
@@ -193,6 +197,8 @@ public class ClientController {
             e.printStackTrace();
         } catch (LineUnavailableException e) {
             exitApp();
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
