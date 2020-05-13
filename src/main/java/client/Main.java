@@ -11,10 +11,14 @@ public class Main extends Application {
 
     static Stage primStage;
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/login.fxml"));
-        primStage=primaryStage;
+        primStage = primaryStage;
         Parent root = loader.load();
         Scene scene = new Scene(root);
         primStage.setTitle("Okno logowania");
@@ -23,7 +27,4 @@ public class Main extends Application {
         primStage.show();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 }

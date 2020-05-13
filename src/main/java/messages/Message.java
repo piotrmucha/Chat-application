@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     private String userName;
-      private String content;
-      private KindOfMessage kindOfMessage;
-      private int usersCounter;
+    private String content;
+    private KindOfMessage kindOfMessage;
+    private int usersCounter;
 
     public int getUsersCounter() {
         return usersCounter;

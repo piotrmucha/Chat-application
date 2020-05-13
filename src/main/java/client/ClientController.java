@@ -1,21 +1,20 @@
 package client;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import messages.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.sound.sampled.*;
 import java.awt.*;
@@ -35,63 +34,83 @@ import java.util.regex.Pattern;
 import static messages.KindOfMessage.*;
 
 public class ClientController {
-    private ObjectInputStream sInput;        // to read from the socket
-    private ObjectOutputStream sOutput;        // to write on the socket
-    private Socket socket;
+
+    private static String MUSIC_PATH = "notificationVoice.wav";
+    private static String LINK_MESSAGE_STYLE = "-fx-text-fill: #0066CC";
+    private static String REGEX_PATTERN = "https?:\\/\\/(www\\.)?[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%_\\+.~#?&//=]*)";
+
+    private static Logger LOGGER = LogManager.getLogger(ClientController.class);
+
+    private int counterValue;
     private String nick;
-    private int counter;
+    private Socket socket;
     private Stage thisStage;
+    private ObjectInputStream sInput;
+    private ObjectOutputStream sOutput;
+
+    @FXML
+    private Text counterTextField;
+    @FXML
+    private ScrollPane scroll;
     @FXML
     private TextFlow outputArea;
     @FXML
     private TextArea messagesArea;
-    @FXML
-    private Text Counter;
-    @FXML
-    private ScrollPane scroll;
 
     public ClientController() {
-        sInput = LogController.input;
-        sOutput = LogController.output;
-        socket = LogController.s;
-        nick = LogController.userN;
-        counter = LogController.userCounts;
         thisStage = Main.primStage;
+        sInput = LogController.input;
+        socket = LogController.socket;
+        nick = LogController.userName;
+        sOutput = LogController.output;
+        counterValue = LogController.userCounts;
     }
 
     public void initialize() {
         scroll.vvalueProperty().bind(outputArea.heightProperty());
-        Counter.setText(Integer.toString(counter));
-        messagesArea.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (keyEvent.getCode() == KeyCode.ENTER) {
-                    if (messagesArea.getText().trim().isEmpty() == false) {
-                        sendMessage(new ActionEvent());
-                    }
-                }
-            }
-        });
+        counterTextField.setText(Integer.toString(counterValue));
+        setupMessageArea();
+        setupServerListener();
+        setupOnCloseRequest();
+    }
 
-        Thread r = new ListenFromServer();
-        r.setDaemon(true);
-        r.start();
+    private void setupOnCloseRequest() {
         thisStage.setOnCloseRequest(e -> {
             Message exitMessage = new Message();
             exitMessage.setKindOfMessage(DISCONNECTION);
-            try {
-                sOutput.writeObject(exitMessage);
-            } catch (Exception ex) {
-                exitApp();
-                ex.printStackTrace();
-            }
+            tryToWriteMessage(exitMessage);
             disconnect();
             Platform.exit();
             System.exit(0);
         });
     }
 
-    public void exitApp() {
+    private void tryToWriteMessage(Message exitMessage) {
+        try {
+            sOutput.writeObject(exitMessage);
+        } catch (Exception ex) {
+            exitApp();
+            ex.printStackTrace();
+        }
+    }
+
+    private void setupServerListener() {
+        Thread serverListener = new ListenFromServer();
+        serverListener.setDaemon(true);
+        serverListener.start();
+    }
+
+    private void setupMessageArea() {
+        messagesArea.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                if (!messagesArea.getText().trim().isEmpty()) {
+                    sendMessage();
+                }
+            }
+        });
+    }
+
+    private void exitApp() {
         Platform.runLater(() -> {
             Platform.exit();
             System.exit(0);
@@ -110,105 +129,103 @@ public class ClientController {
     }
 
     @FXML
-    void emoticon01Fun(ActionEvent event) {
+    void emoticon01Fun() {
         messagesArea.appendText("😀");
     }
 
     @FXML
-    void emoticon02Fun(ActionEvent event) {
-        messagesArea.appendText("🙄");
+    void emoticon02Fun() {
+        messagesArea.appendText("😘🤣🤣🙄");
     }
 
     @FXML
-    void emoticon03Fun(ActionEvent event) {
-        messagesArea.appendText("😬");
+    void emoticon03Fun() {
+        messagesArea.appendText("😶😬👺🙄🙄");
     }
 
     @FXML
-    void emoticon04Fun(ActionEvent event) {
+    void emoticon04Fun() {
         messagesArea.appendText("😡");
     }
 
     @FXML
-    void emoticon05Fun(ActionEvent event) {
-        messagesArea.appendText("🤑");
+    void emoticon05Fun() {
+        messagesArea.appendText("\uD83D\uDE14");
     }
 
     @FXML
-    void emoticon06Fun(ActionEvent event) {
+    void emoticon06Fun() {
         messagesArea.appendText("😇");
     }
 
     @FXML
-    void emoticon07Fun(ActionEvent event) {
-        messagesArea.appendText("😅");
+    void emoticon07Fun() {
+        messagesArea.appendText("🙀");
     }
 
     @FXML
-    void emoticon08Fun(ActionEvent event) {
-        messagesArea.appendText("🤣");
+    void emoticon08Fun() {
+        messagesArea.appendText("🤣(｡◕‿◕｡)");
     }
 
     @FXML
-    void sendMessage(ActionEvent event) {
-
+    void sendMessage() {
         String received = messagesArea.getText();
-        int len = received.length();
-        if (!received.isEmpty() && len < 280) {
+        int receivedMsgLength = received.length();
+        if (validateTextLength(received, receivedMsgLength)) {
             messagesArea.setText("");
-            String encrypted = encrypt(received);//Cesar algorithm
-            Message toSent = new Message();
-            toSent.setUserName(nick);
-            toSent.setKindOfMessage(STANDARD_MESSAGE);
-            toSent.setContent(encrypted);
-            checkLink(received, nick, event, false);
-            try {
-                sOutput.writeObject(toSent);
-            } catch (Exception e) {
-                exitApp();
-                e.printStackTrace();
-            }
-        } else if (len >= 280) {
-            Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Nie udało się wysład wiadomości.\n" +
-                        "Przekroczono limit znaków (280)");
-                alert.showAndWait();
-            });
+            Message toSent = createMessageToSend(received);
+            tryToWriteMessage(toSent);
+        } else if (receivedMsgLength >= 280) {
+            displayAlterWindow("Nie udało się wysład wiadomości.\n Przekroczono limit znaków (280)");
         }
     }
 
-    public void playMusic() {
+    private void displayAlterWindow(String s) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(s);
+            alert.showAndWait();
+        });
+    }
+
+    private Message createMessageToSend(String received) {
+        String encrypted = encrypt(received);
+        Message toSent = new Message();
+        toSent.setUserName(nick);
+        toSent.setKindOfMessage(STANDARD_MESSAGE);
+        toSent.setContent(encrypted);
+        checkLink(received, nick, false);
+        return toSent;
+    }
+
+    private boolean validateTextLength(String received, int len) {
+        return !received.isEmpty() && len < 280;
+    }
+
+    private void playMusic() {
         try {
-            URL res = getClass().getClassLoader().getResource("notificationVoice.wav");
+            URL res = getClass().getClassLoader().getResource(MUSIC_PATH);
             File file = Paths.get(res.toURI()).toFile();
             String path = file.getAbsolutePath();
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(path).getAbsoluteFile());
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
             clip.start();
-        } catch (UnsupportedAudioFileException e) {
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | URISyntaxException exc) {
+            LOGGER.error("exception while try to play notification sign after message received, error: {}", exc.getLocalizedMessage());
             exitApp();
-            e.printStackTrace();
-        } catch (IOException e) {
-            exitApp();
-            e.printStackTrace();
-        } catch (LineUnavailableException e) {
-            exitApp();
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
+            exc.printStackTrace();
         }
     }
 
-    //encrypting/decrypting only chars between range 32/122
-    public String encrypt(String text) {
+    private String encrypt(String text) {
         StringBuilder sb = new StringBuilder(text);
         int distance = 7;
         for (int i = 0; i < sb.length(); i++) {
-            int c = (int) sb.charAt(i);
+            int c = sb.charAt(i);
             if (c > 31 && c < 123) {
                 if (c + distance > 122) {
                     c = 31 + (distance - (122 - c));
@@ -221,11 +238,11 @@ public class ClientController {
         return sb.toString();
     }
 
-    public String decrytp(String text) {
+    private String decrypt(String text) {
         StringBuilder sb = new StringBuilder(text);
         int distance = 7;
         for (int i = 0; i < sb.length(); i++) {
-            int c = (int) sb.charAt(i);
+            int c = sb.charAt(i);
             if (c > 31 && c < 123) {
                 if (c - distance < 32) {
                     c = 123 - (32 - (c - distance));
@@ -238,59 +255,33 @@ public class ClientController {
         return sb.toString();
     }
 
-    void checkLink(String msg, String userName, ActionEvent event, boolean play) {
-        Text nickArea = new Text(userName + ": ");
-        nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
-        Boolean array[] = new Boolean[msg.length()];
-        Arrays.fill(array, 0, msg.length(), false);
-        String regex = "https?:\\/\\/(www\\.)?[A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([A-Za-zżźćńółęąśŻŹĆĄŚĘŁÓŃ0-9@:%_\\+.~#?&//=]*)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(msg);
-        ArrayList<Object> arr = new ArrayList();
-        while (matcher.find()) {
-            int matchStart = matcher.start();
-            int matchEnd = matcher.end();
-            String sub = msg.substring(matchStart, matchEnd);
-            Arrays.fill(array, matchStart, matchEnd, true);
-        }
-        int i = 0;
-        while (i < msg.length()) {
+    private void checkLink(String msg, String userName, boolean play) {
+        Text nickArea = prepareNickArea(userName);
+        Boolean[] array = new Boolean[msg.length()];
+        ArrayList arr = markLinkLetters(msg, array);
+        int index = 0;
+        while (index < msg.length()) {
             StringBuilder part = new StringBuilder();
-            if (array[i]) {
-                while (i < msg.length() && array[i]) {
-                    part.append(msg.charAt(i));
-                    i++;
+            if (array[index]) {
+                while (index < msg.length() && array[index]) {
+                    part.append(msg.charAt(index));
+                    index++;
                 }
-                Hyperlink link = new Hyperlink(part.toString());
-                link.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent e) {
-                        try {
-                            Desktop.getDesktop().browse(new URL(part.toString()).toURI());
-                        } catch (Exception ex) {
-                            Platform.runLater(() -> {
-                                Alert alert = new Alert(Alert.AlertType.ERROR);
-                                alert.setTitle("Error");
-                                alert.setHeaderText(null);
-                                alert.setContentText("Nie udało otworzyc hiperlinku. Sprawdź czy masz zainstalowaną przeglądarkę internetową.\n" +
-                                        " Sprawdź czy jedna z zainstalowanych przeglądarek jest przeglądarką domyślną.”");
-                                alert.showAndWait();
-                            });
-                            ex.printStackTrace();
-                        }
-                    }
-                });
-                link.setStyle("-fx-text-fill: #0066CC");
+                Hyperlink link = setupLinkOnClick(part);
                 arr.add(link);
             } else {
-                while (i < msg.length() && !array[i]) {
-                    part.append(msg.charAt(i));
-                    i++;
+                while (index < msg.length() && !array[index]) {
+                    part.append(msg.charAt(index));
+                    index++;
                 }
-                Text mesage = new Text(part.toString());
-                arr.add(mesage);
+                Text message = new Text(part.toString());
+                arr.add(message);
             }
         }
+        appendMsgToMainArea(msg, play, nickArea, arr);
+    }
+
+    private void appendMsgToMainArea(String msg, boolean play, Text nickArea, ArrayList arr) {
         Platform.runLater(() -> {
             outputArea.getChildren().add(nickArea);
             for (int k = 0; k < arr.size(); k++) {
@@ -308,37 +299,76 @@ public class ClientController {
         });
     }
 
+    private Hyperlink setupLinkOnClick(StringBuilder part) {
+        Hyperlink link = new Hyperlink(part.toString());
+        link.setOnAction(e -> {
+            try {
+                Desktop.getDesktop().browse(new URL(part.toString()).toURI());
+            } catch (Exception ex) {
+                displayAlterWindow("Nie udało otworzyc hiperlinku. Sprawdź czy masz zainstalowaną przeglądarkę internetową.\n " +
+                        "Sprawdź czy jedna z zainstalowanych przeglądarek jest przeglądarką domyślną.");
+                ex.printStackTrace();
+            }
+        });
+        link.setStyle(LINK_MESSAGE_STYLE);
+        return link;
+    }
+
+    private ArrayList markLinkLetters(String msg, Boolean[] array) {
+        Arrays.fill(array, 0, msg.length(), false);
+        Pattern pattern = Pattern.compile(REGEX_PATTERN);
+        Matcher matcher = pattern.matcher(msg);
+        ArrayList arr = new ArrayList();
+        while (matcher.find()) {
+            int matchStart = matcher.start();
+            int matchEnd = matcher.end();
+            Arrays.fill(array, matchStart, matchEnd, true);
+        }
+        return arr;
+    }
+
+    private Text prepareNickArea(String userName) {
+        Text nickArea = new Text(userName + ": ");
+        nickArea.setFont(Font.font("Verdana", FontWeight.BOLD, 12));
+        return nickArea;
+    }
+
     class ListenFromServer extends Thread {
 
         public void run() {
-
-            Message received = null;
             while (true) {
-                try {
-                    // read the message sent to this client
-                    received = (Message) sInput.readObject();
+                receiveMessage();
+            }
+        }
 
-                    if (received.getKindOfMessage() == STANDARD_MESSAGE) {
-                        String msg = received.getContent();
-                        msg = decrytp(msg);
-                        checkLink(msg, received.getUserName(), new ActionEvent(), true);
-                    } else if (received.getKindOfMessage() == USER_COUNTER) {
-                        Counter.setText(Integer.toString(received.getUsersCounter()));
-                    } else if (received.getKindOfMessage() == DISCONNECTION) {
-                        Counter.setText(Integer.toString(received.getUsersCounter()));
-                    }
-
-                } catch (Exception e) {
-                    try {
-                        sOutput.close();
-                        sInput.close();
-                        socket.close();
-                        exitApp();
-                    } catch (IOException e01) {
-                        exitApp();
-                        e01.printStackTrace();
-                    }
+        private void receiveMessage() {
+            Message received;
+            try {
+                received = (Message) sInput.readObject();
+                if (received.getKindOfMessage() == STANDARD_MESSAGE) {
+                    String msg = received.getContent();
+                    msg = decrypt(msg);
+                    checkLink(msg, received.getUserName(), true);
+                } else if (received.getKindOfMessage() == USER_COUNTER) {
+                    counterTextField.setText(Integer.toString(received.getUsersCounter()));
+                } else if (received.getKindOfMessage() == DISCONNECTION) {
+                    counterTextField.setText(Integer.toString(received.getUsersCounter()));
                 }
+
+            } catch (Exception e) {
+                closeStreams();
+            }
+        }
+
+        private void closeStreams() {
+            try {
+                sOutput.close();
+                sInput.close();
+                socket.close();
+                exitApp();
+            } catch (IOException e01) {
+                exitApp();
+                e01.printStackTrace();
             }
         }
     }

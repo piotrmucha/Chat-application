@@ -7,5 +7,5 @@ public enum KindOfMessage {
     DISCONNECTION,
     USER_COUNTER,
     SOFT_DISCONNETION,
-    USERS_LIMIT;
+    USERS_LIMIT
 }

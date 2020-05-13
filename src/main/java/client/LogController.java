@@ -17,38 +17,47 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import messages.KindOfMessage;
 import messages.Message;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Objects;
+import java.util.Properties;
 
 public class LogController {
 
-    final static int ServerPort = 4998;
+    static Socket socket;
+    static String userName;
+    static int userCounts = 0;
     static ObjectInputStream input;
     static ObjectOutputStream output;
-    static Socket s;
-    static String userN;
-    static int userCounts = 0;
+    private static String PROPERTIES_PATH = "config.properties";
 
+    private static Logger LOGGER = LogManager.getLogger(LogController.class);
+
+    private int serverPort;
     private Stage thisStage;
-    @FXML
-    private TextField username;
+    private String hostAddress;
+
     @FXML
     private Button click;
     @FXML
     private TextFlow status;
     @FXML
     private AnchorPane stage;
+    @FXML
+    private TextField username;
 
 
     public LogController() {
         thisStage = Main.primStage;
     }
 
-    public void exitApp() {
+    private void exitApp() {
         Platform.runLater(() -> {
             Platform.exit();
             System.exit(0);
@@ -56,83 +65,198 @@ public class LogController {
     }
 
     public void initialize() {
-        Text wait = new Text("Czekam na połączenie..");
+        assignServerPropertiesFromFile();
+        setupWindowWhileConnecting();
+        setupOnCloseRequest();
+        setupDaemonBackgroundTask();
+    }
+
+    private void assignServerPropertiesFromFile() {
+        try {
+            Properties properties = new Properties();
+            properties.load(Objects.requireNonNull(getClass().getClassLoader().getResourceAsStream(PROPERTIES_PATH)));
+            serverPort = Integer.parseInt(properties.getProperty("port"));
+            hostAddress = properties.getProperty("hostAddress");
+        } catch (IOException exc) {
+            LOGGER.error("Cannot read values from properties file");
+            exc.printStackTrace();
+        }
+    }
+
+    private void setupWindowWhileConnecting() {
+        Text wait = new Text("Czekam na połączenie...");
         status.getChildren().add(wait);
         status.setTextAlignment(TextAlignment.CENTER);
         username.setDisable(true);
         click.setDisable(true);
-        Task task = new Task<Void>() {
-            @Override
-            public Void call() {
-                boolean correctConnection = true;
-                try {
-                    InetAddress ip = InetAddress.getByName("192.168.0.17");
-                    s = new Socket(ip, ServerPort);
-                    output = new ObjectOutputStream(s.getOutputStream());
-                    input = new ObjectInputStream(s.getInputStream());
-                } catch (Exception e) {
-                    correctConnection = false;
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
-                        alert.showAndWait();
-                        Platform.exit();
-                        System.exit(0);
-                    });
-                }
-                if (correctConnection) {
-                    Platform.runLater(() -> {
-                        status.getChildren().clear();
-                        Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
-                        status.getChildren().add(correct);
-                        username.setDisable(false);
-                        click.setDisable(false);
-                    });
-                }
-                return null;
-            }
-        };
+    }
+
+    private void setupOnCloseRequest() {
         thisStage.setOnCloseRequest(e -> {
-            if (s != null && s.isConnected() == true) {
+            if (socket != null && socket.isConnected()) {
                 Message exitMessage = new Message();
                 exitMessage.setKindOfMessage(KindOfMessage.SOFT_DISCONNETION);
-                try {
-                    output.writeObject(exitMessage);
-                } catch (Exception ex) {
-                    exitApp();
-                    ex.printStackTrace();
-                }
+                trySentMessage(exitMessage);
                 disconnect();
             }
             Platform.exit();
             System.exit(0);
         });
-        Thread connection = new Thread(task);
-        connection.setDaemon(true);
-        connection.start();
+    }
+
+
+    private void setupDaemonBackgroundTask() {
+        Task task = getTask();
+        runTaskAsThread(task);
+    }
+
+    private Task getTask() {
+        return new Task<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    LOGGER.info("serverPort = {}, hostAddress = {}", hostAddress, hostAddress);
+                    InetAddress ip = InetAddress.getByName(hostAddress);
+                    socket = new Socket(ip, serverPort);
+                    output = new ObjectOutputStream(socket.getOutputStream());
+                    input = new ObjectInputStream(socket.getInputStream());
+                    displaySuccessfullyLoggedWindow();
+                } catch (Exception e) {
+                    displayFailedLoginWindow();
+                }
+                return null;
+            }
+        };
+    }
+
+    private void displaySuccessfullyLoggedWindow() {
+        Platform.runLater(() -> {
+            status.getChildren().clear();
+            Text correct = new Text("Pomyślnie nawiązano połączenie z serwerem");
+            status.getChildren().add(correct);
+            username.setDisable(false);
+            click.setDisable(false);
+        });
+    }
+
+    private void displayFailedLoginWindow() {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("Nie udało się nawiązac połączenia z serwerem. Sprawdź swoje połączenie internetowe.");
+            alert.showAndWait();
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
     private void disconnect() {
         try {
             input.close();
             output.close();
-            s.close();
+            socket.close();
         } catch (Exception e) {
             exitApp();
             e.printStackTrace();
         }
     }
 
+    @FXML
+    void loginClick() {
+        Task task = new Task<Void>() {
+            @Override
+            public Void call() {
+                userName = username.getText();
+                if (userName.equals("")) {
+                    return null;
+                } else if (userName.length() < 2 || userName.length() > 12) {
+                    invalidUserLoginWindow("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
+                } else {
+                    Message tryToConnectMessage = createTryToConnectMessage(userName);
+                    trySentMessage(tryToConnectMessage);
+                    Message result = waitUntilProperTypeMessageReceived();
+                    KindOfMessage answer = result.getKindOfMessage();
+                    if (answer == KindOfMessage.CONNECTION) {
+                        userCounts = result.getUsersCounter();
+                        loginAction();
+                    } else if (answer == KindOfMessage.DISCONNECTION) {
+                        invalidUserLoginWindow("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
+                    } else if (answer == KindOfMessage.USERS_LIMIT) {
+                        invalidUserLoginWindow("Nie udało się dołączyć do chatroomu – limit uczestników konwersacji został osiągnięty. \n Spróbuj ponownie później.");
+                    }
+                }
+                return null;
+            }
+        };
+        runTaskAsThread(task);
+    }
+
+    private void runTaskAsThread(Task task) {
+        Thread connection = new Thread(task);
+        connection.setDaemon(true);
+        connection.start();
+    }
+
+    private Message waitUntilProperTypeMessageReceived() {
+        Message result = null;
+        while (true) {
+            result = tryParseInputDataToMessage(result);
+            if (expectedMessageType(result)) break;
+        }
+        return result;
+    }
+
+    private boolean expectedMessageType(Message result) {
+        return result.getKindOfMessage() == KindOfMessage.CONNECTION ||
+                result.getKindOfMessage() == KindOfMessage.DISCONNECTION ||
+                result.getKindOfMessage() == KindOfMessage.USERS_LIMIT;
+    }
+
+    private Message tryParseInputDataToMessage(Message result) {
+        try {
+            result = (Message) input.readObject();
+            if (result == null) throw new ClassNotFoundException("no input data provided, parsed to null");
+        } catch (IOException | ClassNotFoundException exc) {
+            exitApp();
+            exc.printStackTrace();
+        }
+        return result;
+    }
+
+    private void trySentMessage(Message tryToConnectMessage) {
+        try {
+            output.writeObject(tryToConnectMessage);
+        } catch (IOException e) {
+            exitApp();
+            e.printStackTrace();
+        }
+    }
+
+    private Message createTryToConnectMessage(String userLogin) {
+        Message loginTry = new Message();
+        loginTry.setKindOfMessage(KindOfMessage.TRY_TO_CONNECT);
+        loginTry.setUserName(userLogin);
+        return loginTry;
+    }
+
+    private void invalidUserLoginWindow(String s) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText(s);
+            alert.showAndWait();
+        });
+    }
+
     void loginAction() {
         Platform.runLater(() -> {
-
             try {
-                Stage currentStage = (Stage) stage.getScene().getWindow();
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/client.fxml"));
                 Parent content = loader.load();
                 Scene scene = new Scene(content);
+                Stage currentStage = (Stage) stage.getScene().getWindow();
                 currentStage.setScene(scene);
                 currentStage.setTitle("Okno czatu");
                 currentStage.getIcons().add(new Image("icon.png"));
@@ -144,80 +268,5 @@ public class LogController {
 
         });
     }
-
-    @FXML
-    void loginClick() {       //if we click button  Ustaw Pseudonim, stage starts listen
-        Task task = new Task<Void>() {
-            @Override
-            public Void call() {
-                String user = username.getText();
-                userN = user;
-                if (user.equals("")) ;
-                else if (user.length() < 2 || user.length() > 12) {
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText(null);
-                        alert.setContentText("Nie udało się ustawić pseudonimu. Liczba znaków musi być nie mniejsza od 2 i nie większa od 12");
-                        alert.showAndWait();
-                    });
-                } else {
-                    Message loginTry = new Message();
-                    KindOfMessage logging = KindOfMessage.TRY_TO_CONNECT;
-                    loginTry.setKindOfMessage(logging);
-                    loginTry.setUserName(user);
-
-                    try {
-                        output.writeObject(loginTry);
-                    } catch (IOException e) {
-                        exitApp();
-                        e.printStackTrace();
-                    }
-
-                    Message result = null;
-                    while (true) {
-                        try {
-                            result = (Message) input.readObject();
-                        } catch (IOException | ClassNotFoundException e) {
-                            exitApp();
-                            e.printStackTrace();
-                        }
-                        if (result.getKindOfMessage() == KindOfMessage.CONNECTION || result.getKindOfMessage() == KindOfMessage.DISCONNECTION ||
-                                result.getKindOfMessage() == KindOfMessage.USERS_LIMIT) {
-                            break;
-                        }
-                    }
-                    KindOfMessage answer = result.getKindOfMessage();
-                    if (answer == KindOfMessage.CONNECTION) {
-                        userCounts = result.getUsersCounter();
-                        loginAction();
-                    } else if (answer == KindOfMessage.DISCONNECTION) {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Error");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Nie udało się ustawid pseudonimu. Wybrany pseudonim jest już zajęty.");
-                            alert.showAndWait();
-                        });
-                    } else if (answer == KindOfMessage.USERS_LIMIT) {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Error");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Nie udało się dołączyć do chatroomu – limit uczestników konwersacji został osiągnięty." +
-                                    "\n Spróbuj ponownie później.");
-                            alert.showAndWait();
-                        });
-                    }
-                }
-                return null;
-            }
-        };
-        Thread connection = new Thread(task);
-        connection.setDaemon(true);
-        connection.start();
-    }
-
-
 }
 

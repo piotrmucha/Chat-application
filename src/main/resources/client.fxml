@@ -6,35 +6,43 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="431.0" prefWidth="440.0" style="-fx-background-color: #9ba3a2;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="432.0"
+      prefWidth="462.0" style="-fx-background-color: #9ba3a2;" xmlns="http://javafx.com/javafx/11.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
 
     <ScrollPane fx:id="scroll" layoutX="9.0" layoutY="21.0" vvalue="1.0">
         <content>
-            <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="346.0" prefWidth="412.0" style="-fx-background-color: white;" />
+            <TextFlow fx:id="outputArea" lineSpacing="5.0" prefHeight="346.0" prefWidth="441.0"
+                      style="-fx-background-color: white;"/>
         </content>
     </ScrollPane>
-    <TextArea fx:id="messagesArea" layoutX="10.0" layoutY="380.0" prefHeight="38.0" prefWidth="298.0" />
-    <Button defaultButton="true" layoutX="316.0" layoutY="380.0" mnemonicParsing="false" onAction="#sendMessage" prefHeight="38.0" prefWidth="57.0" style="-fx-background-color: #5e9bff;" text="WYŚLIJ" textFill="WHITE" />
-    <Text fill="WHITE" layoutX="54.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 14;" text="         Liczba uczestników konwersacji: " textAlignment="CENTER" wrappingWidth="253.0000000000001">
+    <TextArea fx:id="messagesArea" layoutX="10.0" layoutY="380.0" prefHeight="38.0" prefWidth="298.0"/>
+    <Button defaultButton="true" layoutX="316.0" layoutY="380.0" mnemonicParsing="false" onAction="#sendMessage"
+            prefHeight="38.0" prefWidth="70.0" style="-fx-background-color: #5e9bff;" text="WYŚLIJ" textFill="WHITE"/>
+    <Text fill="WHITE" layoutX="14.0" layoutY="18.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 14;"
+          text="         Liczba uczestników konwersacji: " textAlignment="CENTER" wrappingWidth="327.0000000000001">
         <font>
-            <Font name="System Bold" size="12.0" />
+            <Font name="System Bold" size="12.0"/>
         </font>
     </Text>
-    <MenuButton layoutX="381.0" layoutY="380.0" mnemonicParsing="false" popupSide="TOP" prefHeight="38.0" prefWidth="51.0" style="-fx-background-color: #5e9bff;" text="☺" textFill="WHITE" textOverrun="WORD_ELLIPSIS">
+    <MenuButton layoutX="395.0" layoutY="380.0" mnemonicParsing="false" popupSide="TOP" prefHeight="38.0"
+                prefWidth="57.0" style="-fx-background-color: #5e9bff;" text="☺" textFill="WHITE"
+                textOverrun="WORD_ELLIPSIS">
         <items>
-            <MenuItem mnemonicParsing="false" onAction="#emoticon01Fun" text="😀" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon02Fun" text="🙄" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon03Fun" text="😬" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon04Fun" text="😡" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon05Fun" text="🤑" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon06Fun" text="😇" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon07Fun" text="😅" />
-            <MenuItem mnemonicParsing="false" onAction="#emoticon08Fun" text="🤣" />
+            <MenuItem mnemonicParsing="false" onAction="#emoticon01Fun" text="😀"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon02Fun" text="😘"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon03Fun" text="😶"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon04Fun" text="😡"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon05Fun" text="😔"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon06Fun" text="😇"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon07Fun" text="🙀"/>
+            <MenuItem mnemonicParsing="false" onAction="#emoticon08Fun" text="(｡◕‿◕｡)"/>
         </items>
         <padding>
-            <Insets left="5.0" />
+            <Insets left="5.0"/>
         </padding>
     </MenuButton>
-    <Text fx:id="Counter" fill="WHITE" layoutX="328.0" layoutY="20.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 16;" text="0" wrappingWidth="32.53674602508545" />
+    <Text fx:id="counterTextField" fill="WHITE" layoutX="351.0" layoutY="19.0" strokeType="OUTSIDE" strokeWidth="0.0"
+          style="-fx-font-size: 16;" text="0" wrappingWidth="32.53674602508545"/>
 
 </Pane>

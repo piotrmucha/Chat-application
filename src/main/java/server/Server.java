@@ -1,66 +1,94 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class Server {
-    static Vector<ClientHandler> ar = new Vector<>();
-    static int loginClients = 0;
+class Server {
+
     private volatile static Server instance;
-    private Server() {
+    private static int THREAD_POOL_SIZE = 20;
+    private static Logger logger = LogManager.getLogger(Server.class);
+    private int port;
+    private int loggedClients;
+    private String hostAddress;
+    private Collection<ClientHandler> clientHandlers;
+    private ExecutorService executorService;
+
+
+    private Server(int port, String hostAddress) {
+        this.port = port;
+        this.hostAddress = hostAddress;
+        clientHandlers = new Vector<>();
+        loggedClients = 0;
+        executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 
-    public static Server getInstance() {
+    static Server getInstance(int port, String hostAddress) {
         if (instance == null) {
-            synchronized (Server.class) {
+            synchronized (ServerApp.class) {
                 if (instance == null) {
-                    instance = new Server();
+                    instance = new Server(port, hostAddress);
                 }
             }
         }
         return instance;
     }
 
-    public static void main(String args[]) {
-        Server serwer = Server.getInstance();
-        try {
-            serwer.run();
-        } catch (IOException e) {
-            e.printStackTrace();
+    static Server getInstance() {
+        if (instance == null) {
+            synchronized (ServerApp.class) {
+                if (instance == null) {
+                    instance = new Server(4998, "192.168.1.12");
+                }
+            }
+        }
+        return instance;
+    }
+
+    void run() throws IOException {
+
+        ServerSocket serverSocket = new ServerSocket(port, 1, InetAddress.getByName(hostAddress));
+        logger.info("Running ServerApp: Host= {} Port= {}", serverSocket.getLocalSocketAddress(), serverSocket.getLocalPort());
+        waitForSocketConnection(serverSocket);
+    }
+
+    private void waitForSocketConnection(ServerSocket serverSocket) throws IOException {
+        while (true) {
+            Socket socket = serverSocket.accept();
+            logger.info("Request for client received: {}", socket);
+            ObjectInputStream dis = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream dos = new ObjectOutputStream(socket.getOutputStream());
+            ClientHandler newClient = new ClientHandler(socket, dis, dos);
+            logger.info("Creating new thread for client={}", newClient);
+            executorService.submit(new Thread(newClient));
+            clientHandlers.add(newClient);
         }
     }
 
-    private void run() throws IOException {
-        String ip;
-        try (final DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            ip = socket.getLocalAddress().getHostAddress();
-        }
-        ServerSocket ss = new ServerSocket(4998, 1, InetAddress.getByName(ip));
-        System.out.println("\r\nRunning Server: " +
-                "Host=" + ss.getLocalSocketAddress() +
-                " Port=" + ss.getLocalPort());
-        Socket s;
+    Collection<ClientHandler> getClientHandlers() {
+        return clientHandlers;
+    }
 
-        while (true) {
-            s = ss.accept();
-            System.out.println("Request for client received: " + s);
-            ObjectInputStream dis = new ObjectInputStream(s.getInputStream());
-            ObjectOutputStream dos = new ObjectOutputStream(s.getOutputStream());
-            System.out.println("Creating new thread for this client");
-            ClientHandler mtch = new ClientHandler(s, dis, dos);
+    int getLoggedClients() {
+        return loggedClients;
+    }
 
-            Thread t = new Thread(mtch);
-            System.out.println("Adding client for list");
-            ar.add(mtch);
-            t.start();
-        }
+    void incrementLoggedClients() {
+        this.loggedClients++;
+    }
+
+    void decrementLoggedClients() {
+        this.loggedClients--;
     }
 }
-
